@@ -55,14 +55,21 @@ function showSetupDeck(){
  document.body.classList.add('pre-game');
  state.gameStarted=false;state.setupStage='deck';state.openingMulligan=true;state.mulligans=0;
  const el=document.querySelector('#setupModal');if(!el)return;
- el.innerHTML=`<div class="setup-overlay"><div class="setup-panel"><div class="setup-titlebar"><div><h1>Choose your deck</h1><div class="sub">Load a Commander deck before the game starts. Import your deck first. You will see a 7-card starting hand and must Keep or Mulligan before the battlefield begins.</div></div><span class="setup-badge">COMMAND BEACON v24</span></div><div class="setup-grid"><div class="setup-card"><h3>Import from Moxfield</h3><div class="setup-status">Paste a public Moxfield deck URL.</div><input id="setupMoxUrl" placeholder="https://moxfield.com/decks/..." value=""><div class="setup-actions"><button onclick="setupImportMoxfield()">Import from Moxfield</button></div></div><div class="setup-card"><h3>Use a sample deck</h3><div class="setup-status">Use the built-in test deck to test the rules engine immediately.</div><div class="setup-actions"><button onclick="setupLoadSample()">Use sample Commander deck</button></div></div></div><div class="setup-card" style="margin-top:14px"><h3>Paste exported decklist</h3><textarea id="setupDeckText" placeholder="Paste a Moxfield exported decklist here if the browser blocks the Moxfield request."></textarea><div class="setup-actions"><button onclick="setupImportText()">Import decklist</button></div></div><div id="setupStatus" class="setup-status" style="margin-top:12px"></div></div></div>`;
+ el.innerHTML=`<div class="setup-overlay"><div class="setup-panel"><div class="setup-titlebar"><div><h1>Choose your deck</h1><div class="sub">Load a Commander deck before the game starts. Import your deck first. You will see a 7-card starting hand and must Keep or Mulligan before the battlefield begins.</div></div><span class="setup-badge">COMMAND BEACON v26</span></div><div class="setup-grid"><div class="setup-card"><h3>Import from Moxfield</h3><div class="setup-status">Paste a public Moxfield deck URL.</div><input id="setupMoxUrl" placeholder="https://moxfield.com/decks/..." value=""><div class="setup-actions"><button onclick="setupImportMoxfield()">Import from Moxfield</button></div></div><div class="setup-card"><h3>Use a sample deck</h3><div class="setup-status">Use the built-in test deck to test the rules engine immediately.</div><div class="setup-actions"><button onclick="setupLoadSample()">Use sample Commander deck</button></div></div></div><div class="setup-card" style="margin-top:14px"><h3>Paste exported decklist</h3><textarea id="setupDeckText" placeholder="If Moxfield blocks browser access, paste the exported decklist here — the game will continue normally."></textarea><div class="setup-actions"><button onclick="setupImportText()">Import decklist</button></div></div><div id="setupStatus" class="setup-status" style="margin-top:12px"></div></div></div>`;
 }
 function setupStatus(msg,ok=false){const el=document.querySelector('#setupStatus');if(el){el.className=`setup-status ${ok?'setup-ok':'setup-error'}`;el.textContent=msg}}
 function setupLoadSample(){importDeck(true)}
 async function setupImportMoxfield(){
  const input=document.querySelector('#setupMoxUrl')?.value||'',id=extractMoxfieldId(input);if(!id){setupStatus('Enter a valid public Moxfield deck URL.');return}
- setupStatus('Loading deck from Moxfield…',true);
- try{const deck=await fetchMoxfieldDeck(id);const lists=extractDeckNames(deck);if(!lists.main.length&&!lists.commanders.length)throw new Error('No commander/mainboard cards found.');await loadImportedDeck(lists,deck?.name||'Moxfield deck',true)}catch(e){setupStatus(`Moxfield import failed: ${e.message||e}`)}}
+ setupStatus('Connecting to Moxfield…',true);
+ try{
+  const deck=await fetchMoxfieldDeck(id);
+  const lists=deck?.__lists||extractDeckNames(deck);
+  if(!lists.main.length&&!lists.commanders.length)throw new Error('No commander/mainboard cards found.');
+  setupStatus('Deck found. Loading cards…',true);
+  await loadImportedDeck(lists,deck?.name||'Moxfield deck',true);
+ }catch(e){setupStatus(`Moxfield import failed: ${e.message||e}`)}
+}
 async function setupImportText(){
  const text=document.querySelector('#setupDeckText')?.value||'',lists=parseDeckText(text);if(!lists.main.length&&!lists.commanders.length){setupStatus('Could not read the decklist.');return}
  setupStatus('Loading decklist…',true);try{await loadImportedDeck(lists,'Imported decklist',true)}catch(e){setupStatus(`Deck import failed: ${e.message||e}`)}}
@@ -314,26 +321,53 @@ async function fetchMoxfieldDeck(id){
  const direct=[
   `https://api2.moxfield.com/v3/decks/all/${encodeURIComponent(id)}`,
   `https://api2.moxfield.com/v2/decks/all/${encodeURIComponent(id)}`,
-  `https://api.moxfield.com/v2/decks/all/${encodeURIComponent(id)}`
+  `https://api.moxfield.com/v2/decks/all/${encodeURIComponent(id)}`,
+  `https://api2.moxfield.com/v2/decks/all/${encodeURIComponent(id)}/export`
  ];
- const proxyUrls=[
-  ...direct.map(u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`),
-  ...direct.map(u=>`https://corsproxy.io/?url=${encodeURIComponent(u)}`),
-  ...direct.map(u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`)
-];
-const urls=[...direct,...proxyUrls];
- let last='';
- for(const url of urls){
+ // Moxfield has tightened browser/API access. Use a reader proxy as a second path
+ // so a normal public deck URL can still be imported when direct CORS/Cloudflare blocks it.
+ const reader=[
+  `https://r.jina.ai/https://api2.moxfield.com/v3/decks/all/${encodeURIComponent(id)}`,
+  `https://r.jina.ai/https://api2.moxfield.com/v2/decks/all/${encodeURIComponent(id)}`,
+  `https://r.jina.ai/https://api2.moxfield.com/v2/decks/all/${encodeURIComponent(id)}/export`,
+  `https://r.jina.ai/https://moxfield.com/decks/${encodeURIComponent(id)}`
+ ];
+ const proxy=(u)=>[
+  `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+  `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
+ ];
+ const urls=[...direct,...reader,...direct.flatMap(proxy)];
+ let last='Moxfield request failed';
+ async function one(url){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),8000);
   try{
-   const r=await fetch(url,{headers:{'Accept':'application/json,text/plain,*/*','Cache-Control':'no-cache'}});
-   if(!r.ok){last=`Moxfield ${r.status}`;continue}
+   const r=await fetch(url,{method:'GET',headers:{'Accept':'application/json,text/plain,*/*','Cache-Control':'no-cache'},credentials:'omit',signal:controller.signal});
+   if(!r.ok)throw new Error(`HTTP ${r.status}`);
    const text=await r.text();
-   const d=JSON.parse(text);
-   if(d?.boards||d?.mainboard||d?.commanders||d?.publicId)return d;
-   last='Moxfield returned no deck boards';
-  }catch(e){last=e?.message||'Network/CORS error'}
+   if(!text.trim())throw new Error('Empty response');
+   let d=null;try{d=JSON.parse(text)}catch{}
+   if(d&&(d.boards||d.mainboard||d.commanders||d.publicId||d.data?.boards)){
+    return d.data?.boards ? {...d.data,name:d.data.name||'Moxfield deck'} : d;
+   }
+   const lists=parseDeckText(text);
+   if(lists.main.length||lists.commanders.length)return {name:'Moxfield deck',__lists:lists};
+   // Jina may wrap JSON in markdown; recover the first JSON object if present.
+   const match=text.match(/\{[\s\S]*\}/);
+   if(match){try{
+    const j=JSON.parse(match[0]);
+    if(j&&(j.boards||j.mainboard||j.commanders||j.publicId||j.data?.boards))
+      return j.data?.boards ? {...j.data,name:j.data.name||'Moxfield deck'} : j;
+   }catch{}}
+   throw new Error('Response was not a usable public deck');
+  }finally{clearTimeout(timer)}
  }
- throw new Error(last||'Unable to fetch Moxfield deck');
+ try{
+  return await Promise.any(urls.map(async url=>{try{return await one(url)}catch(e){last=e?.name==='AbortError'?'Request timed out':(e?.message||'Network/CORS error');throw e}}));
+ }catch(e){
+  throw new Error(`${last}. Direct Moxfield access is blocked; the importer also tried alternate public readers/proxies.`);
+ }
 }
 function extractDeckNames(deck){
  const boards=deck?.boards||deck;
@@ -363,7 +397,7 @@ async function fetchCardsForDeck(names){
  for(let i=0;i<unique.length;i+=75){
   const chunk=unique.slice(i,i+75);
   try{
-   const r=await fetch('https://api.scryfall.com/cards/collection',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({identifiers:chunk.map(name=>({name}))})});
+   const ac=new AbortController();const to=setTimeout(()=>ac.abort(),10000);const r=await fetch('https://api.scryfall.com/cards/collection',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({identifiers:chunk.map(name=>({name}))}),signal:ac.signal});clearTimeout(to);
    if(!r.ok)throw new Error('Scryfall '+r.status);
    const d=await r.json();(d.data||[]).forEach(raw=>{const face=raw.card_faces?.[0];const obj={name:raw.name,type:raw.type_line||'',oracle:raw.oracle_text||face?.oracle_text||'',img:raw.image_uris?.normal||face?.image_uris?.normal||'',colors:raw.colors||face?.colors||[],cmc:raw.cmc||0,manaCost:raw.mana_cost||face?.mana_cost||'',power:raw.power==null?(face?.power==null?null:+face.power):+raw.power,toughness:raw.toughness==null?(face?.toughness==null?null:+face.toughness):+raw.toughness,subtypes:raw.subtypes||face?.subtypes||[],isLand:/^Land\b/i.test(raw.type_line||''),isCreature:/\bCreature\b/i.test(raw.type_line||''),isInstant:/\bInstant\b/i.test(raw.type_line||''),isSorcery:/\bSorcery\b/i.test(raw.type_line||''),hasHaste:/\bhaste\b/i.test((raw.oracle_text||face?.oracle_text||''))||raw.keywords?.some(k=>/^Haste$/i.test(k)),keywords:raw.keywords||[],isCommander:false};outByName[raw.name.toLowerCase()]=obj;cache[raw.name]=obj});
   }catch(e){for(const name of chunk){const c=await card(name);outByName[name.toLowerCase()]=c}}
