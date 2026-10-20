@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Command Beacon — rules engine v22</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Command Beacon — rules engine v31</title>
 <style>
 :root{--bg:#050a0f;--panel:#0b141c;--line:#294050;--text:#eaf2f6;--muted:#8ea5b4;--gold:#d9b65b;--green:#65d39a;--red:#e26d6d;--blue:#5eb6e6}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}body{background:radial-gradient(circle at 50% 45%,#122532,#071017 60%,#03070b);color:var(--text);font:13px Inter,system-ui,Arial,sans-serif}button{background:#142633;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px 9px;cursor:pointer}button:hover{background:#1b3444;border-color:#547286}button:disabled{opacity:.35;cursor:not-allowed}.top{height:52px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:#08121a}.brand{font-weight:900;letter-spacing:.8px}.pill{font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 8px}.pre-game .layout{display:none!important}.pre-game .top{display:none!important}.layout{height:calc(100vh - 52px);padding:7px;display:grid;grid-template-columns:1fr;grid-template-rows:1fr;gap:7px}.board{grid-column:1;position:relative;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;overflow:hidden;border:1px solid var(--line);border-radius:11px;background:#061016}.seat{position:relative;padding:7px;border:1px solid #203541;min-width:0;min-height:0;background:linear-gradient(145deg,#0c1821,#081219)}.seat.active{box-shadow:inset 0 0 0 2px #d9b65b88}.seat.commander-bg{background-image:linear-gradient(180deg,rgba(5,10,15,.52),rgba(5,10,15,.84)),var(--cmd-bg);background-size:cover;background-position:center}.seat.commander-bg.you{background-image:linear-gradient(180deg,rgba(5,10,15,.42),rgba(5,10,15,.80)),var(--cmd-bg)}.seat.you{background:linear-gradient(145deg,#10202a,#09151c)}.head{height:40px;position:relative;z-index:3;display:flex;justify-content:space-between;gap:8px}.name{font-weight:900}.meta{color:var(--muted);font-size:9px;margin-top:2px}.life{font-size:20px;font-weight:900}.counters{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}.counter{font-size:8px;border:1px solid #304858;background:#0a151d;border-radius:999px;padding:2px 5px}.zones{position:absolute;right:7px;bottom:7px;display:grid;grid-template-columns:repeat(4,56px);gap:5px;z-index:8;align-items:end}.zone{width:56px;height:78px;display:flex;align-items:flex-end;justify-content:center;text-align:center;font-size:8px;line-height:1.1;color:#c4d4dc;border:1px solid #355363;border-radius:6px;padding:5px 3px;background:linear-gradient(145deg,#12232d,#071119);box-shadow:0 3px 8px #0008;cursor:pointer}.battle{height:calc(100% - 112px);position:relative;display:flex;align-items:center;justify-content:center}.battlefield{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:5px;max-width:90%;max-height:88%;overflow:hidden}.card{width:56px;height:78px;border-radius:6px;object-fit:cover;background:#152530;border:1px solid #526b79;box-shadow:0 3px 8px #0009;transition:.12s}.you .card{width:61px;height:85px}.opponent .card{width:45px;height:63px}.card:hover{transform:translateY(-5px) scale(1.05);z-index:5}.tapped{transform:rotate(90deg);margin:0 11px}.attackable{outline:2px solid var(--green);cursor:pointer}.required{outline:3px solid var(--red);cursor:pointer}.selected{outline:3px solid var(--gold);transform:translateY(-6px)}.empty{color:#607886;font-size:10px}.center{display:none;position:absolute;z-index:20;left:50%;top:50%;transform:translate(-50%,-50%);width:min(340px,31%);min-width:220px;background:#08131bf2;border:1px solid #466173;border-radius:10px;padding:8px;box-shadow:0 15px 45px #000c}.center h3{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:0 0 5px}.stackitem{padding:5px;border:1px solid #304756;background:#101d26;border-radius:5px;font-size:10px;margin:3px 0}.side,.bottom{background:#0b151d;border:1px solid var(--line);border-radius:9px;padding:8px}.side{display:none!important;grid-column:1;grid-row:1;overflow:auto}.bottom{display:none!important}.hand{grid-column:1/3;display:none;align-items:end;justify-content:center;gap:5px;min-height:93px;overflow:hidden}.seat-hand{position:absolute;left:7px;right:7px;bottom:7px;height:74px;display:flex;align-items:flex-end;justify-content:center;gap:4px;max-width:none;overflow:hidden;z-index:7;border-top:1px solid #294050;padding-top:5px;background:linear-gradient(180deg,transparent,#07111955)}.seat-hand:before{content:"HAND";position:absolute;left:2px;top:-8px;font-size:7px;color:#78919f;letter-spacing:.8px}.seat-hand .card{width:40px;height:56px}.you .seat-hand .card{width:48px;height:67px}.seat-hand .card.legal{outline:2px solid var(--green);cursor:pointer}.zone{cursor:pointer}.zone:hover{border-color:#6c91a5;background:#10202b;transform:translateY(-2px)}.mana-btn{font-size:8px;padding:3px 5px;margin:2px}.zone-modal{position:fixed;z-index:500;left:50%;top:50%;transform:translate(-50%,-50%);width:min(900px,90vw);max-height:78vh;overflow:auto;background:#08131bf7;border:1px solid #466173;border-radius:11px;padding:14px;box-shadow:0 20px 80px #000e}.zone-grid{display:flex;flex-wrap:wrap;gap:7px}.zone-grid .card{width:70px;height:98px}.zone-card,.zone-card-back{display:flex;flex-direction:column;align-items:center;gap:4px}.zone-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}.zone-actions button{font-size:9px;padding:4px 6px}.zone-modal h2{margin:0 0 8px}.zone-close{float:right}.zone-note{font-size:10px;color:var(--muted);margin-bottom:10px}.controls{display:none!important;gap:5px;flex-wrap:wrap;align-items:center}.priority{margin-left:auto;color:var(--gold);font-weight:800}.stack-dock{display:none!important;position:absolute;right:8px;bottom:8px;max-width:360px;max-height:120px;overflow:auto;background:#08131bf2;border:1px solid #466173;border-radius:8px;padding:7px;z-index:30}.stack-dock.show{display:block}.stack-dock .stack-title{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}.stack-dock .stackitem{margin:2px 0;padding:4px;font-size:9px}.log{height:130px;overflow:auto;font-size:10px;color:#b7c7d0}.log div{padding:3px 0;border-bottom:1px solid #162630}.reaction{position:absolute;z-index:100;left:50%;top:50%;transform:translate(-50%,-50%);width:min(700px,78%);background:#07121bf5;border:1px solid #577185;border-radius:11px;padding:14px;box-shadow:0 20px 70px #000d} #setupModal{position:fixed;inset:0;z-index:2000} .setup-overlay{position:fixed;inset:0;z-index:1000;background:rgba(2,6,10,.9);display:flex;align-items:center;justify-content:center;padding:20px}.setup-panel{width:min(760px,92vw);max-height:90vh;overflow:auto;background:#09131b;border:1px solid #466173;border-radius:14px;box-shadow:0 25px 100px #000f;padding:22px}.setup-panel h1{margin:0 0 5px;font-size:22px}.setup-panel .sub{margin-bottom:18px}.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.setup-card{background:#0d1b24;border:1px solid #294050;border-radius:10px;padding:14px}.setup-card h3{margin:0 0 8px}.setup-card input,.setup-card textarea{width:100%;padding:9px;background:#071119;color:var(--text);border:1px solid #294050;border-radius:6px}.setup-card textarea{height:110px;resize:vertical}.setup-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.setup-hand{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:14px 0 18px}.setup-hand .card{width:88px;height:123px;object-fit:cover;border-radius:6px;box-shadow:0 8px 20px #0008}.setup-hand .card:hover{transform:translateY(-4px) scale(1.03)}.setup-status{font-size:11px;color:var(--muted);min-height:18px}.setup-error{color:var(--red)}.setup-ok{color:var(--green)}.setup-choice{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:8px}.setup-choice button{min-width:120px}.setup-titlebar{display:flex;justify-content:space-between;align-items:center;gap:10px}.setup-badge{font-size:10px;color:var(--gold);border:1px solid #67582d;border-radius:999px;padding:4px 8px}@media(max-width:800px){.setup-grid{grid-template-columns:1fr}.setup-hand .card{width:75px;height:105px}}.reaction h2{margin:0 0 4px}.sub{font-size:11px;color:var(--muted);margin-bottom:8px}.actions{display:flex;gap:6px;flex-wrap:wrap}.legal{color:var(--green)}.illegal{color:var(--muted)}.timer{font-size:12px;font-weight:900;color:#eaf2f6}.timer.warn{color:#e26d6d}.seat.emptySeat{opacity:.55;background:linear-gradient(145deg,#091118,#050b10)}.seat.emptySeat .battle{align-items:center}.seatToggle{margin:2px;font-size:9px}.turnbar{display:flex;gap:8px;align-items:center}.loading{position:fixed;right:10px;bottom:8px;padding:5px 8px;border:1px solid var(--line);background:#07121ddd;border-radius:6px;font-size:10px;z-index:200}
 </style></head><body>
@@ -23,7 +23,7 @@ function setSeat(id,on){if(id===1)return;const pl=state.players[id-1];pl.seated=
 function p(id=state.active){return state.players[id-1]}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function log(s){state.log.unshift(s);document.querySelector('#log').innerHTML=state.log.slice(0,30).map(x=>`<div>${esc(x)}</div>`).join('')}
-function back(){return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="280"><rect width="100%" height="100%" rx="14" fill="#162b3a"/><rect x="12" y="12" width="176" height="256" rx="10" fill="#0b151e" stroke="#486274"/><circle cx="100" cy="140" r="48" fill="#1e4b68" stroke="#6b8da0"/><text x="100" y="147" text-anchor="middle" fill="#d9b65b" font-family="Arial" font-size="28" font-weight="700">CB</text></svg>`)}
+function back(){return 'https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/f/f8/Magic_card_back.jpg/revision/latest/scale-to-width-down/250?cb=20140813141013'}
 async function card(name){
  if(cache[name])return cache[name];
  const fail={name,type:'',oracle:'',img:'',colors:[],cmc:0,manaCost:'',power:null,toughness:null,subtypes:[],isLand:false,isCreature:false,isInstant:false,isSorcery:false,hasHaste:false,keywords:[],isCommander:false};
@@ -55,7 +55,7 @@ function showSetupDeck(){
  document.body.classList.add('pre-game');
  state.gameStarted=false;state.setupStage='deck';state.openingMulligan=true;state.mulligans=0;
  const el=document.querySelector('#setupModal');if(!el)return;
- el.innerHTML=`<div class="setup-overlay"><div class="setup-panel"><div class="setup-titlebar"><div><h1>Choose your deck</h1><div class="sub">Load a Commander deck before the game starts. Import your deck first. You will see a 7-card starting hand and must Keep or Mulligan before the battlefield begins.</div></div><span class="setup-badge">COMMAND BEACON v26</span></div><div class="setup-grid"><div class="setup-card"><h3>Import from Moxfield</h3><div class="setup-status">Paste a public Moxfield deck URL.</div><input id="setupMoxUrl" placeholder="https://moxfield.com/decks/..." value=""><div class="setup-actions"><button onclick="setupImportMoxfield()">Import from Moxfield</button></div></div><div class="setup-card"><h3>Use a sample deck</h3><div class="setup-status">Use the built-in test deck to test the rules engine immediately.</div><div class="setup-actions"><button onclick="setupLoadSample()">Use sample Commander deck</button></div></div></div><div class="setup-card" style="margin-top:14px"><h3>Paste exported decklist</h3><textarea id="setupDeckText" placeholder="If Moxfield blocks browser access, paste the exported decklist here — the game will continue normally."></textarea><div class="setup-actions"><button onclick="setupImportText()">Import decklist</button></div></div><div id="setupStatus" class="setup-status" style="margin-top:12px"></div></div></div>`;
+ el.innerHTML=`<div class="setup-overlay"><div class="setup-panel"><div class="setup-titlebar"><div><h1>Choose your deck</h1><div class="sub">Load a Commander deck before the game starts. Import your deck first. You will see a 7-card starting hand and must Keep or Mulligan before the battlefield begins.</div></div><span class="setup-badge">COMMAND BEACON v31</span></div><div class="setup-grid"><div class="setup-card"><h3>Import from Moxfield</h3><div class="setup-status">Paste a public Moxfield deck URL.</div><input id="setupMoxUrl" placeholder="https://moxfield.com/decks/..." value=""><div class="setup-actions"><button onclick="setupImportMoxfield()">Import from Moxfield</button></div></div><div class="setup-card"><h3>Use a sample deck</h3><div class="setup-status">Use the built-in test deck to test the rules engine immediately.</div><div class="setup-actions"><button onclick="setupLoadSample()">Use sample Commander deck</button></div></div></div><div class="setup-card" style="margin-top:14px"><h3>Paste exported decklist</h3><textarea id="setupDeckText" placeholder="If Moxfield blocks browser access, paste the exported decklist here — the game will continue normally."></textarea><div class="setup-actions"><button onclick="setupImportText()">Import decklist</button></div></div><div id="setupStatus" class="setup-status" style="margin-top:12px"></div></div></div>`;
 }
 function setupStatus(msg,ok=false){const el=document.querySelector('#setupStatus');if(el){el.className=`setup-status ${ok?'setup-ok':'setup-error'}`;el.textContent=msg}}
 function setupLoadSample(){importDeck(true)}
@@ -65,20 +65,20 @@ async function setupImportMoxfield(){
  try{
   const deck=await fetchMoxfieldDeck(id);
   const lists=deck?.__lists||extractDeckNames(deck);
-  if(!lists.main.length&&!lists.commanders.length)throw new Error('No commander/mainboard cards found.');
+  if(!usableDeckLists(lists))throw new Error('Moxfield response did not contain a valid card list.');
   setupStatus('Deck found. Loading cards…',true);
   await loadImportedDeck(lists,deck?.name||'Moxfield deck',true);
  }catch(e){setupStatus(`Moxfield import failed: ${e.message||e}`)}
 }
 async function setupImportText(){
- const text=document.querySelector('#setupDeckText')?.value||'',lists=parseDeckText(text);if(!lists.main.length&&!lists.commanders.length){setupStatus('Could not read the decklist.');return}
+ const text=document.querySelector('#setupDeckText')?.value||'',lists=parseDeckText(text);if(!usableDeckLists(lists)){setupStatus('Could not read a valid card list.');return}
  setupStatus('Loading decklist…',true);try{await loadImportedDeck(lists,'Imported decklist',true)}catch(e){setupStatus(`Deck import failed: ${e.message||e}`)}}
 function showOpeningHand(){
  document.body.classList.add('pre-game');
  state.setupStage='mulligan';state.openingMulligan=true;
  const pl=p(1),el=document.querySelector('#setupModal');if(!el)return;
  const selected=state.mulliganSelected||[];
- const hand=pl.hand.map((c,i)=>`<img class="card ${selected.includes(i)?'selected':''}" src="${cardImg(c)}" title="${esc(c.name)} — click to select for bottom" onclick="toggleMulliganCard(${i})" onerror="this.onerror=null;this.src=back()">`).join('');
+ const hand=pl.hand.map((c,i)=>`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:92px"><img class="card ${selected.includes(i)?'selected':''}" src="${cardImg(c)}" title="${esc(c.name)} — click to select for bottom" onclick="toggleMulliganCard(${i})" onerror="this.onerror=null;this.src=back()"><div style="font-size:9px;text-align:center;color:#d9e5eb;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name||'Unknown card')}</div></div>`).join('');
  const need=state.mulligans;
  el.innerHTML=`<div class="setup-overlay"><div class="setup-panel"><div class="setup-titlebar"><div><h1>Opening hand</h1><div class="sub">${esc(state.deckTitle||'Commander deck')} • ${pl.hand.length} cards</div></div><span class="setup-badge">MULLIGAN ${state.mulligans}</span></div><div class="setup-hand">${hand||'<span class="empty">No cards</span>'}</div><div class="setup-choice"><button onclick="keepOpeningHand()">Keep hand</button><button onclick="mulliganOpeningHand()">Mulligan</button></div><div class="setup-status" style="text-align:center;margin-top:12px">${need?`You have taken ${need} mulligan(s). On Keep, select exactly ${need} card(s) to put on the bottom of your library.`:'First mulligan is free. Click Mulligan for another 7-card hand.'}</div></div></div>`;
 }
@@ -317,6 +317,15 @@ function moxCardName(entry){return entry?.card?.name||entry?.name||entry?.cardNa
 function moxQty(entry){
  const n=Number(entry?.quantity??entry?.qty??entry?.count??1);return Number.isFinite(n)&&n>0?Math.floor(n):1;
 }
+function usableDeckLists(lists){
+ if(!lists)return false;
+ const total=(lists.main?.length||0)+(lists.commanders?.length||0);
+ if(total<2)return false;
+ const bad=new Set(['main deck','mainboard','sideboard','commander','deck','card name']);
+ const sample=[...(lists.main||[]),...(lists.commanders||[])].slice(0,12);
+ if(sample.length && sample.every(n=>bad.has(String(n).toLowerCase())))return false;
+ return true;
+}
 async function fetchMoxfieldDeck(id){
  const direct=[
   `https://api2.moxfield.com/v3/decks/all/${encodeURIComponent(id)}`,
@@ -352,7 +361,7 @@ async function fetchMoxfieldDeck(id){
     return d.data?.boards ? {...d.data,name:d.data.name||'Moxfield deck'} : d;
    }
    const lists=parseDeckText(text);
-   if(lists.main.length||lists.commanders.length)return {name:'Moxfield deck',__lists:lists};
+   if(usableDeckLists(lists))return {name:'Moxfield deck',__lists:lists};
    // Jina may wrap JSON in markdown; recover the first JSON object if present.
    const match=text.match(/\{[\s\S]*\}/);
    if(match){try{
@@ -369,44 +378,102 @@ async function fetchMoxfieldDeck(id){
   throw new Error(`${last}. Direct Moxfield access is blocked; the importer also tried alternate public readers/proxies.`);
  }
 }
+function moxImage(entry){
+ const c=entry?.card||entry;
+ const u=c?.image_uris||c?.imageUris||c?.images||entry?.image_uris||entry?.imageUris||{};
+ return u.normal||u.large||u.small||c?.image||entry?.image||'';
+}
+function moxMeta(entry){
+ const c=entry?.card||entry;
+ const printing=c?.printing||entry?.printing||c?.edition||entry?.edition||{};
+ return {name:moxCardName(entry),img:moxImage(entry),type:c?.type_line||c?.typeLine||entry?.type_line||'',oracle:c?.oracle_text||c?.oracleText||entry?.oracle_text||'',manaCost:c?.mana_cost||c?.manaCost||entry?.mana_cost||'',colors:c?.colors||[],cmc:c?.cmc||0,scryfallId:c?.scryfall_id||c?.scryfallId||'',set:c?.set||c?.setCode||printing?.set||printing?.code||'',collectorNumber:c?.collector_number||c?.collectorNumber||printing?.collector_number||printing?.collectorNumber||printing?.number||''};
+}
 function extractDeckNames(deck){
  const boards=deck?.boards||deck;
  const commanderBoard=boards?.commanders||boards?.commander||deck?.commanders;
  const mainBoard=boards?.mainboard||boards?.main||boards?.maindeck||deck?.mainboard;
  const sideBoard=boards?.sideboard||deck?.sideboard;
- const commanders=[],main=[],side=[];
- boardEntries(commanderBoard).forEach(e=>{const n=moxCardName(e);if(n)for(let i=0;i<moxQty(e);i++)commanders.push(n)});
- boardEntries(mainBoard).forEach(e=>{const n=moxCardName(e);if(n)for(let i=0;i<moxQty(e);i++)main.push(n)});
- boardEntries(sideBoard).forEach(e=>{const n=moxCardName(e);if(n)for(let i=0;i<moxQty(e);i++)side.push(n)});
- if(!main.length&&Array.isArray(deck?.cards))deck.cards.forEach(e=>{const n=moxCardName(e);if(n)for(let i=0;i<moxQty(e);i++)main.push(n)});
- return {commanders,main,side};
+ const commanders=[],main=[],side=[],meta={};
+ const add=(arr,e)=>{const n=moxCardName(e);if(!n)return;const q=moxQty(e);if(!meta[n.toLowerCase()])meta[n.toLowerCase()]=moxMeta(e);for(let i=0;i<q;i++)arr.push(n)};
+ boardEntries(commanderBoard).forEach(e=>add(commanders,e));
+ boardEntries(mainBoard).forEach(e=>add(main,e));
+ boardEntries(sideBoard).forEach(e=>add(side,e));
+ if(!main.length&&Array.isArray(deck?.cards))deck.cards.forEach(e=>add(main,e));
+ return {commanders,main,side,meta};
 }
 function parseDeckText(text){
- const commanders=[],main=[];let section='main';
+ const commanders=[],main=[],side=[];let section='main';const meta={};
+ const junkNames=new Set(['main deck','mainboard','sideboard','commander','commanders','maybeboard','considering','deck','name','quantity','card name']);
  for(const raw of String(text||'').split(/\r?\n/)){
-  const line=raw.trim();if(!line||line.startsWith('//'))continue;
-  if(/^commander\b/i.test(line)){section='commander';continue}if(/^mainboard\b|^main deck\b/i.test(line)){section='main';continue}if(/^sideboard\b/i.test(line)){section='side';continue}
-  const m=line.match(/^(\d+)\s*[xX]?\s+(.+?)(?:\s+\([A-Za-z0-9]+\)\s*\d+.*)?$/);if(!m)continue;
-  const qty=Math.max(1,parseInt(m[1],10)),name=m[2].trim();
-  if(section==='commander')for(let i=0;i<qty;i++)commanders.push(name);else if(section==='main')for(let i=0;i<qty;i++)main.push(name);
+  let line=raw.replace(/\uFEFF/g,'').trim();
+  if(!line||line.startsWith('//')||line.startsWith('#'))continue;
+  // Strip common Moxfield export section prefixes without treating them as cards.
+  if(/^commander(?:s)?\s*:?[\s]*$/i.test(line)){section='commander';continue}
+  if(/^main(?:board| deck)?\s*:?[\s]*$/i.test(line)){section='main';continue}
+  if(/^sideboard\s*:?[\s]*$/i.test(line)){section='side';continue}
+  if(/^maybeboard\s*:?[\s]*$/i.test(line)){section='side';continue}
+
+  // Supported exports:
+  //   1x Card Name (SET) 123
+  //   1 Card Name (SET) 123
+  //   1 Card Name
+  // Keep the complete card name and the printing when present.
+  let m=line.match(/^(\d+)\s*[xX]?\s+(.+?)\s+\(([A-Za-z0-9]+)\)\s*([A-Za-z0-9-]+)\s*$/);
+  let qty,name,set='',collector='';
+  if(m){qty=Math.max(1,parseInt(m[1],10));name=m[2].trim();set=m[3];collector=m[4]}
+  else {
+   m=line.match(/^(\d+)\s*[xX]?\s+(.+?)\s*$/);
+   if(!m)continue;
+   qty=Math.max(1,parseInt(m[1],10));name=m[2].trim();
+   // Some exports append a printing in brackets rather than parentheses.
+   const b=name.match(/^(.+?)\s+\[([A-Za-z0-9]+)\s+([A-Za-z0-9-]+)\]$/);
+   if(b){name=b[1].trim();set=b[2];collector=b[3]}
+  }
+  const clean=name.replace(/^\s*[-•]\s*/,'').trim();
+  if(!clean||junkNames.has(clean.toLowerCase()))continue;
+  // Never accept HTML/UI garbage as a card name.
+  if(/^(loading|import|export|paste|fallback|public|supported|moxfield|choose|use a sample|main deck)\b/i.test(clean))continue;
+  const key=clean.toLowerCase();
+  if(!meta[key])meta[key]={name:clean,img:'',type:'',oracle:'',manaCost:'',colors:[],cmc:0,set,collectorNumber:collector};
+  else if(set){meta[key].set=set;meta[key].collectorNumber=collector}
+  const target=section==='commander'?commanders:section==='side'?side:main;
+  for(let i=0;i<qty;i++)target.push(clean);
  }
- return {commanders,main};
+ return {commanders,main,side,meta};
 }
-async function fetchCardsForDeck(names){
+async function fetchCardsForDeck(names,meta={}){
  const unique=[...new Set(names)],outByName={},out=[];let failed=0;
  for(let i=0;i<unique.length;i+=75){
   const chunk=unique.slice(i,i+75);
   try{
-   const ac=new AbortController();const to=setTimeout(()=>ac.abort(),10000);const r=await fetch('https://api.scryfall.com/cards/collection',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({identifiers:chunk.map(name=>({name}))}),signal:ac.signal});clearTimeout(to);
+   const ac=new AbortController();const to=setTimeout(()=>ac.abort(),10000);const r=await fetch('https://api.scryfall.com/cards/collection',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({identifiers:chunk.map(name=>{const m=meta[name.toLowerCase()];return m?.set&&m?.collectorNumber?{set:m.set.toLowerCase(),collector_number:String(m.collectorNumber)}:{name}})}),signal:ac.signal});clearTimeout(to);
    if(!r.ok)throw new Error('Scryfall '+r.status);
    const d=await r.json();(d.data||[]).forEach(raw=>{const face=raw.card_faces?.[0];const obj={name:raw.name,type:raw.type_line||'',oracle:raw.oracle_text||face?.oracle_text||'',img:raw.image_uris?.normal||face?.image_uris?.normal||'',colors:raw.colors||face?.colors||[],cmc:raw.cmc||0,manaCost:raw.mana_cost||face?.mana_cost||'',power:raw.power==null?(face?.power==null?null:+face.power):+raw.power,toughness:raw.toughness==null?(face?.toughness==null?null:+face.toughness):+raw.toughness,subtypes:raw.subtypes||face?.subtypes||[],isLand:/^Land\b/i.test(raw.type_line||''),isCreature:/\bCreature\b/i.test(raw.type_line||''),isInstant:/\bInstant\b/i.test(raw.type_line||''),isSorcery:/\bSorcery\b/i.test(raw.type_line||''),hasHaste:/\bhaste\b/i.test((raw.oracle_text||face?.oracle_text||''))||raw.keywords?.some(k=>/^Haste$/i.test(k)),keywords:raw.keywords||[],isCommander:false};outByName[raw.name.toLowerCase()]=obj;cache[raw.name]=obj});
-  }catch(e){for(const name of chunk){const c=await card(name);outByName[name.toLowerCase()]=c}}
+  }catch(e){for(const name of chunk){
+    const m=meta[name.toLowerCase()];let c=null;
+    try{
+      if(m?.set&&m?.collectorNumber){
+        const rr=await fetch(`https://api.scryfall.com/cards/${encodeURIComponent(m.set.toLowerCase())}/${encodeURIComponent(String(m.collectorNumber))}`);
+        if(rr.ok){const raw=await rr.json();const face=raw.card_faces?.[0];c={name:raw.name,type:raw.type_line||'',oracle:raw.oracle_text||face?.oracle_text||'',img:raw.image_uris?.normal||face?.image_uris?.normal||'',colors:raw.colors||face?.colors||[],cmc:raw.cmc||0,manaCost:raw.mana_cost||face?.mana_cost||'',power:raw.power==null?(face?.power==null?null:+face.power):+raw.power,toughness:raw.toughness==null?(face?.toughness==null?null:+face.toughness):+raw.toughness,subtypes:raw.subtypes||face?.subtypes||[],isLand:/^Land\b/i.test(raw.type_line||''),isCreature:/\bCreature\b/i.test(raw.type_line||''),isInstant:/\bInstant\b/i.test(raw.type_line||''),isSorcery:/\bSorcery\b/i.test(raw.type_line||''),hasHaste:/\bhaste\b/i.test((raw.oracle_text||face?.oracle_text||''))||raw.keywords?.some(k=>/^Haste$/i.test(k)),keywords:raw.keywords||[],isCommander:false};}
+      }
+    }catch{}
+    if(!c)c=await card(name);outByName[name.toLowerCase()]=c
+  }}
  }
- for(const name of names){const c=outByName[name.toLowerCase()]||cache[name];if(!c||(!c.img&&!c.type&&!c.oracle))failed++;out.push(c||{name})}return {cards:out,failed};
+ for(const name of names){
+  let c=outByName[name.toLowerCase()]||cache[name];
+  const m=meta[name.toLowerCase()];
+  if(m && (!c || (!c.img&&!c.type&&!c.oracle))){
+   c={name:m.name||name,type:m.type||'',oracle:m.oracle||'',img:m.img||'',colors:m.colors||[],cmc:m.cmc||0,manaCost:m.manaCost||'',power:null,toughness:null,subtypes:[],isLand:/^Land\b/i.test(m.type||''),isCreature:/\bCreature\b/i.test(m.type||''),isInstant:/\bInstant\b/i.test(m.type||''),isSorcery:/\bSorcery\b/i.test(m.type||''),hasHaste:/\bhaste\b/i.test(m.oracle||''),keywords:[],isCommander:false};
+  } else if(c && m && !c.img && m.img){c.img=m.img}
+  if(!c||(!c.img&&!c.type&&!c.oracle))failed++;
+  out.push(c||{name});
+ }
+ return {cards:out,failed};
 }
 async function loadImportedDeck(lists,title='',fromSetup=false){
  if(!lists.main.length&&!lists.commanders.length)throw new Error('No commander/mainboard cards found.');
- const all=[...lists.commanders,...lists.main],loaded=await fetchCardsForDeck(all),pl=p(1);
+ const all=[...lists.commanders,...lists.main],loaded=await fetchCardsForDeck(all,lists.meta||{}),pl=p(1);
  pl.library=[];pl.hand=[];pl.battlefield=[];pl.graveyard=[];pl.exile=[];pl.mana=emptyMana();pl.landPlayed=0;pl.landPlays=1;pl.landPlayBonus=0;pl.commandZone=[];
  loaded.cards.forEach((c,i)=>{if(i<lists.commanders.length)pl.commandZone.push({...c,isCommander:true});else pl.library.push({...c})});
  pl.library.sort(()=>Math.random()-.5);pl.hand=pl.library.splice(0,7);state.openingMulligan=true;state.active=1;state.priority=1;state.phaseIndex=0;state.turn=1;state.stack=[];resetTurnTimer();
