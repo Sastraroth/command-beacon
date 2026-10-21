@@ -1,711 +1,386 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Command Beacon — rules engine v55</title>
-<!-- COMMAND BEACON v55: restored render path + explicit hand hitboxes -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Command Beacon — Clean Sandbox v98</title>
 <style>
-:root{--bg:#050a0f;--panel:#0b141c;--line:#294050;--text:#eaf2f6;--muted:#8ea5b4;--gold:#d9b65b;--green:#65d39a;--red:#e26d6d;--blue:#5eb6e6}*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}body{background:radial-gradient(circle at 50% 45%,#122532,#071017 60%,#03070b);color:var(--text);font:13px Inter,system-ui,Arial,sans-serif}button{background:#142633;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:6px 9px;cursor:pointer}button:hover{background:#1b3444;border-color:#547286}button:disabled{opacity:.35;cursor:not-allowed}.top{height:52px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:#08121a}.brand{font-weight:900;letter-spacing:.8px}.pill{font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 8px}.pre-game .layout{display:none!important}.pre-game .top{display:none!important}.layout{height:calc(100vh - 52px);padding:7px;display:grid;grid-template-columns:1fr;grid-template-rows:1fr;gap:7px}.board{grid-column:1;position:relative;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;overflow:hidden;border:1px solid var(--line);border-radius:11px;background:#061016}.seat{position:relative;padding:7px;border:1px solid #203541;min-width:0;min-height:0;background:linear-gradient(145deg,#0c1821,#081219)}.seat.active{box-shadow:inset 0 0 0 2px #d9b65b88}.seat.commander-bg{background-repeat:no-repeat;background-image:linear-gradient(180deg,rgba(5,10,15,.52),rgba(5,10,15,.84)),var(--cmd-bg);background-size:cover;background-position:center;background-repeat:no-repeat}.seat.commander-bg.you{background-image:linear-gradient(180deg,rgba(5,10,15,.42),rgba(5,10,15,.80)),var(--cmd-bg)}.seat.you{background:linear-gradient(145deg,#10202a,#09151c)}.head{height:40px;position:relative;z-index:3;display:flex;justify-content:space-between;gap:8px}.name{font-weight:900}.meta{color:var(--muted);font-size:9px;margin-top:2px}.life{font-size:20px;font-weight:900}.counters{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}.counter{font-size:8px;border:1px solid #304858;background:#0a151d;border-radius:999px;padding:2px 5px}.zones{position:absolute;right:7px;bottom:7px;display:grid;grid-template-columns:repeat(4,56px);gap:5px;z-index:8;align-items:end}.zone{width:56px;height:78px;display:flex;align-items:flex-end;justify-content:center;text-align:center;font-size:8px;line-height:1.1;color:#c4d4dc;border:1px solid #355363;border-radius:6px;padding:5px 3px;background:linear-gradient(145deg,#12232d,#071119);box-shadow:0 3px 8px #0008;cursor:pointer}.battle{height:calc(100% - 112px);position:relative;z-index:1;display:flex;align-items:center;justify-content:center}.battlefield{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:5px;max-width:90%;max-height:88%;overflow:hidden}.card{width:56px;height:78px;border-radius:6px;object-fit:cover;background:#152530;border:1px solid #526b79;box-shadow:0 3px 8px #0009;transition:.12s}.you .card{width:61px;height:85px}.opponent .card{width:45px;height:63px}.card:hover{transform:translateY(-5px) scale(1.05);z-index:5}.tapped{transform:rotate(90deg);margin:0 11px}.attackable{outline:2px solid var(--green);cursor:pointer}.required{outline:3px solid var(--red);cursor:pointer}.selected{outline:3px solid var(--gold);transform:translateY(-6px)}.empty{color:#607886;font-size:10px}.center{display:none;position:absolute;z-index:20;left:50%;top:50%;transform:translate(-50%,-50%);width:min(340px,31%);min-width:220px;background:#08131bf2;border:1px solid #466173;border-radius:10px;padding:8px;box-shadow:0 15px 45px #000c}.center h3{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:0 0 5px}.stackitem{padding:5px;border:1px solid #304756;background:#101d26;border-radius:5px;font-size:10px;margin:3px 0}.side,.bottom{background:#0b151d;border:1px solid var(--line);border-radius:9px;padding:8px}.side{display:none!important;grid-column:1;grid-row:1;overflow:auto}.bottom{display:none!important}.hand{grid-column:1/3;display:none;align-items:end;justify-content:center;gap:5px;min-height:93px;overflow:hidden}.seat-hand{position:absolute;left:7px;right:7px;bottom:7px;height:74px;display:flex;align-items:flex-end;justify-content:center;gap:4px;max-width:none;overflow:hidden;z-index:1000;pointer-events:auto;border-top:1px solid #294050;padding-top:5px;background:linear-gradient(180deg,transparent,#07111955)}.seat-hand:before{content:"HAND";position:absolute;left:2px;top:-8px;font-size:7px;color:#78919f;letter-spacing:.8px}.seat-hand .card{width:40px;height:56px}.you .seat-hand .card{width:48px;height:67px}.seat-hand .card.legal{outline:2px solid var(--green);cursor:pointer!important}.seat-hand .card[data-card-action="play"]:active{transform:translateY(-8px) scale(1.04);filter:brightness(1.15)}.seat-hand .card{cursor:pointer!important;pointer-events:auto!important;touch-action:none;user-select:none;position:relative;z-index:1002}.hand-card-hit{position:relative;width:40px;height:56px;display:block;flex:0 0 auto;cursor:pointer;pointer-events:auto!important;z-index:1003;touch-action:none}.you .seat-hand .hand-card-hit{width:48px;height:67px}.hand-card-hit .card{display:block;width:100%!important;height:100%!important;pointer-events:none!important}.seat-hand .card.dragging{opacity:.55}.zone{cursor:pointer}.zone:hover{border-color:#6c91a5;background:#10202b;transform:translateY(-2px)}.mana-btn{font-size:8px;padding:3px 5px;margin:2px}.zone-modal{position:fixed;z-index:500;left:50%;top:50%;transform:translate(-50%,-50%);width:min(900px,90vw);max-height:78vh;overflow:auto;background:#08131bf7;border:1px solid #466173;border-radius:11px;padding:14px;box-shadow:0 20px 80px #000e}.zone-grid{display:flex;flex-wrap:wrap;gap:7px}.zone-grid .card{width:70px;height:98px}.zone-card,.zone-card-back{display:flex;flex-direction:column;align-items:center;gap:4px}.zone-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}.zone-actions button{font-size:9px;padding:4px 6px}.zone-modal h2{margin:0 0 8px}.zone-close{float:right}.zone-note{font-size:10px;color:var(--muted);margin-bottom:10px}.controls{display:none!important;gap:5px;flex-wrap:wrap;align-items:center}.priority{margin-left:auto;color:var(--gold);font-weight:800}.stack-dock{display:none!important;position:absolute;right:8px;bottom:8px;max-width:360px;max-height:120px;overflow:auto;background:#08131bf2;border:1px solid #466173;border-radius:8px;padding:7px;z-index:30}.stack-dock.show{display:block}.stack-dock .stack-title{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}.stack-dock .stackitem{margin:2px 0;padding:4px;font-size:9px}.log{height:130px;overflow:auto;font-size:10px;color:#b7c7d0}.log div{padding:3px 0;border-bottom:1px solid #162630}.reaction{position:absolute;z-index:100;left:50%;top:50%;transform:translate(-50%,-50%);width:min(700px,78%);background:#07121bf5;border:1px solid #577185;border-radius:11px;padding:14px;box-shadow:0 20px 70px #000d} #setupModal{position:fixed;inset:0;z-index:2000} .setup-overlay{position:fixed;inset:0;z-index:1000;background:rgba(2,6,10,.9);display:flex;align-items:center;justify-content:center;padding:20px}.setup-panel{width:min(760px,92vw);max-height:90vh;overflow:auto;background:#09131b;border:1px solid #466173;border-radius:14px;box-shadow:0 25px 100px #000f;padding:22px}.setup-panel h1{margin:0 0 5px;font-size:22px}.setup-panel .sub{margin-bottom:18px}.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.setup-card{background:#0d1b24;border:1px solid #294050;border-radius:10px;padding:14px}.setup-card h3{margin:0 0 8px}.setup-card input,.setup-card textarea{width:100%;padding:9px;background:#071119;color:var(--text);border:1px solid #294050;border-radius:6px}.setup-card textarea{height:110px;resize:vertical}.setup-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.setup-hand{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:14px 0 18px}.setup-hand .card{width:88px;height:123px;object-fit:cover;border-radius:6px;box-shadow:0 8px 20px #0008}.setup-hand .card:hover{transform:translateY(-4px) scale(1.03)}.setup-status{font-size:11px;color:var(--muted);min-height:18px}.setup-error{color:var(--red)}.setup-ok{color:var(--green)}.setup-choice{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:8px}.setup-choice button{min-width:120px}.setup-titlebar{display:flex;justify-content:space-between;align-items:center;gap:10px}.setup-badge{font-size:10px;color:var(--gold);border:1px solid #67582d;border-radius:999px;padding:4px 8px}@media(max-width:800px){.setup-grid{grid-template-columns:1fr}.setup-hand .card{width:75px;height:105px}}.reaction h2{margin:0 0 4px}.sub{font-size:11px;color:var(--muted);margin-bottom:8px}.actions{display:flex;gap:6px;flex-wrap:wrap}.legal{color:var(--green)}.illegal{color:var(--muted)}.timer{font-size:12px;font-weight:900;color:#eaf2f6}.timer.warn{color:#e26d6d}.seat.emptySeat{opacity:.55;background:linear-gradient(145deg,#091118,#050b10)}.seat.emptySeat .battle{align-items:center}.seatToggle{margin:2px;font-size:9px}.phase-ladder{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);z-index:18;display:flex;align-items:center;gap:3px;padding:5px 7px;background:rgba(5,10,15,.92);border:1px solid #3b5260;border-radius:999px;box-shadow:0 8px 25px #0009;pointer-events:none}.phase-node{display:flex;align-items:center;gap:3px;color:#738b98;font-size:8px;white-space:nowrap}.phase-node .diamond{width:11px;height:11px;border:1px solid #526b79;transform:rotate(45deg);border-radius:2px;background:#0b151d}.phase-node.active{color:#f2e0a4;font-weight:900}.phase-node.active .diamond{background:var(--gold);border-color:#f1d77e;box-shadow:0 0 8px #d9b65b99}.phase-node.done .diamond{background:#35515e;border-color:#5d7a88}.phase-arrow{color:#526875;font-size:8px}@media(max-width:900px){.phase-node span:not(.diamond){display:none}.phase-ladder{bottom:4px}}.turnbar{display:flex;gap:6px;align-items:center}.turnbar button{font-size:10px;padding:4px 7px}.loading{position:fixed;right:10px;bottom:8px;padding:5px 8px;border:1px solid var(--line);background:#07121ddd;border-radius:6px;font-size:10px;z-index:200}
-</style></head><body>
-<header class="top"><div class="brand">COMMAND BEACON <span class="pill">rules engine v55</span></div><div class="turnbar"><span id="turn" class="pill">Waiting</span> <span id="step" class="pill">—</span> <span id="timer" class="pill timer">45.0s</span><button id="nextBtn" onclick="advanceStep()" title="Advance the current turn step">Next Step</button><button id="turnBtn" onclick="passTurn()" title="Pass the turn">Pass Turn</button></div></header>
-<div class="layout"><main class="board" id="board"><section class="seat" id="seat3"></section><section class="seat" id="seat2"></section><section class="seat you" id="seat1"></section><section class="seat" id="seat4"></section><div id="reaction"></div><div id="phaseLadder" class="phase-ladder"></div></main>
-<aside class="side"><b>Deck / Rules</b><div style="margin:8px 0"><button onclick="showSetupDeck()">Choose / restart deck</button><button onclick="shuffleLibrary()">Shuffle</button></div><div style="margin:8px 0"><input id="moxUrl" placeholder="Paste Moxfield deck URL" style="width:100%;padding:7px;background:#08131b;color:#eaf2f6;border:1px solid #294050;border-radius:6px"><button onclick="importMoxfield()" style="margin-top:5px;width:100%">Import from Moxfield URL</button><textarea id="deckText" placeholder="Fallback: paste a Moxfield exported decklist here" style="width:100%;height:70px;margin-top:6px;padding:7px;background:#08131b;color:#eaf2f6;border:1px solid #294050;border-radius:6px;resize:vertical"></textarea><button onclick="importDeckText()" style="margin-top:5px;width:100%">Import decklist text</button><div class="small" style="margin-top:4px">Public Moxfield URLs are supported. Text export is a fallback if the browser blocks the Moxfield request.</div></div><div><b>Seats</b><div id="seatsCtl"></div></div><div id="legalInfo" class="small"></div><hr style="border-color:#1b2b35"><b>Game log</b><div id="log" class="log"></div></aside>
-<section class="bottom"><div class="controls"><button onclick="passPriority()">Pass Priority</button><button onclick="advanceStep()">Next Step</button><button onclick="passTurn()">Pass Turn</button><span id="priority" class="priority">Priority: —</span></div><div class="small" id="phaseHint"></div><div id="phaseActions" class="controls"></div><div class="hand" id="hand"></div><div id="stackDock" class="stack-dock"><div class="stack-title">Stack</div><div id="stack"></div></div></section></div>
-<div id="setupModal"></div><div id="loading" class="loading" style="display:none"></div><div id="zoneModal"></div>
+:root{--bg:#071018;--panel:#0b151e;--panel2:#101d27;--line:#263b47;--text:#dce8ef;--muted:#8fa5b3;--accent:#64d5ff}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#050b10;color:var(--text);font-family:Arial,Helvetica,sans-serif}
+button,input,textarea{font:inherit}
+button{background:#132a38;color:#dce8ef;border:1px solid #315364;border-radius:8px;padding:7px 10px;cursor:pointer}
+button:hover{background:#183646}
+#app{width:100%;height:100%;position:relative}
+#table{
+ position:absolute;inset:0;display:grid;
+ grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;
+ background:#03080c;
+}
+.seat{
+ position:relative;overflow:hidden;min-width:0;min-height:0;
+ border:1px solid var(--line);border-radius:2px;
+ background:rgba(9,20,28,.82);
+ box-shadow:inset 0 0 60px #0007;
+}
+#p3{grid-column:1;grid-row:1}
+#p2{grid-column:2;grid-row:1}
+#p1{grid-column:1;grid-row:2;border-color:#365f73}
+#p4{grid-column:2;grid-row:2}
+.seat h3{
+ position:absolute;left:6px;top:5px;z-index:30;
+ margin:0;padding:4px 7px;font-size:12px;font-weight:600;
+ color:#c8d9e3;background:#0b1821cc;border-radius:5px;
+}
+.seat-label{
+ position:absolute;right:7px;top:7px;z-index:30;
+ font-size:9px;color:#8097a4;
+}
+#p1 .seat-label{color:#72d7ff}
+
+/* Every player has their OWN battlefield. */
+.player-field{
+ position:absolute;left:0;right:0;top:0;bottom:0;
+ overflow:hidden;pointer-events:auto;
+}
+.player-field-title{
+ position:absolute;top:7px;left:50%;transform:translateX(-50%);
+ font-size:9px;color:#536d7a;pointer-events:none;z-index:2;
+ text-transform:uppercase;letter-spacing:.08em;
+}
+.hand{
+ position:absolute;left:8px;right:8px;bottom:7px;height:190px;
+ display:flex;justify-content:center;align-items:flex-end;
+ pointer-events:auto;z-index:40;
+}
+.hand-card{
+ width:98px;height:139px;flex:0 0 98px;margin-left:-38px;
+ position:relative;cursor:grab;user-select:none;touch-action:none;
+ transition:transform 150ms cubic-bezier(.2,.8,.2,1),filter 150ms ease,z-index 150ms ease;
+}
+.hand-card:first-child{margin-left:0}
+.hand-card img{
+ display:block;width:100%;height:100%;object-fit:cover;border-radius:6px;
+ box-shadow:0 3px 9px #0009;pointer-events:none;
+}
+.hand-card.hover-main{transform:translateY(-12px) scale(1.18)!important;z-index:100!important;filter:brightness(1.06)}
+.hand-card.hover-neighbor{transform:translateY(-5px) scale(1.08)!important;z-index:80!important}
+.hand-card.dragging{opacity:0}
+
+
+/* Each player has separate command/library/graveyard/exile piles. */
+.player-zones{
+ position:absolute;right:8px;top:32px;z-index:35;
+ display:grid;grid-template-columns:98px 98px;grid-template-rows:132px 132px 132px;grid-template-areas:'command library' '. graveyard' '. exile';gap:5px;
+ pointer-events:auto;
+}
+.zone{
+ width:98px;height:132px;position:relative;
+ border:1px solid #294453;border-radius:6px;
+ background:#0b1821dd;box-shadow:0 4px 12px #0008;
+ overflow:hidden;user-select:none;
+}
+.zone.command{border-color:#476777}
+.player-zones>.zone:nth-child(1){grid-area:command}
+.player-zones>.zone:nth-child(2){grid-area:library}
+.player-zones>.zone:nth-child(3){grid-area:graveyard}
+.player-zones>.zone:nth-child(4){grid-area:exile}
+.zone-pile{
+ position:absolute;inset:5px 5px 31px;
+ display:flex;align-items:center;justify-content:center;
+ border-radius:4px;overflow:hidden;
+ background:#101d27;
+}
+.zone-pile img{width:100%;height:100%;object-fit:contain;display:block}
+.zone-empty{
+ width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+ color:#516875;font-size:10px;text-align:center;
+}
+.zone-label{
+ position:absolute;left:3px;right:3px;bottom:2px;
+ text-align:center;color:#9bb0bb;font-size:9px;line-height:11px;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.zone-count{
+ position:absolute;right:3px;top:2px;z-index:2;
+ min-width:18px;padding:2px 4px;border-radius:8px;
+ background:#071018dd;color:#dce8ef;font-size:10px;text-align:center;
+}
+
+/* Battlefield cards are free movable objects inside their owner's field. */
+.table-card{
+ position:absolute;width:131px;height:186px;
+ cursor:grab;user-select:none;touch-action:none;z-index:5;
+ pointer-events:auto;
+}
+.table-card img{
+ width:100%;height:100%;object-fit:cover;border-radius:8px;
+ box-shadow:0 5px 15px #000b;display:block;pointer-events:none;
+}
+.table-card.dragging{z-index:9999;cursor:grabbing;opacity:.8}
+.zone.dragging-zone{cursor:grabbing!important;opacity:.8}
+
+/* Import UI */
+#toolbar{
+ position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+ z-index:300;width:min(560px,80vw);padding:16px;
+ background:#09141deF;border:1px solid #315364;border-radius:12px;
+ box-shadow:0 15px 60px #000c;
+}
+#toolbar h2{margin:0 0 10px;font-size:17px}
+#toolbar p{margin:5px 0 10px;color:var(--muted);font-size:11px}
+.row{display:flex;gap:7px;margin:7px 0}
+.row>*{flex:1}
+textarea{width:100%;min-height:130px;resize:vertical;background:#071018;color:#dce8ef;border:1px solid #294454;border-radius:8px;padding:8px}
+input{background:#071018;color:#dce8ef;border:1px solid #294454;border-radius:8px;padding:8px;width:100%}
+#status{font-size:10px;color:#89a2b1;min-height:15px}
+#deckInfo{position:absolute;left:10px;bottom:8px;z-index:320;font-size:10px;color:#8198a5;pointer-events:none}
+#deckBtn{font-size:11px}
+#loading{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#0009;z-index:500;font-size:14px}
+
+#mulliganOverlay{
+ position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+ background:#000b;z-index:450;
+}
+#mulliganOverlay.open{display:flex}
+#mulliganBox{
+ width:min(1180px,96vw);max-height:92vh;overflow:auto;
+ background:#09141df5;border:1px solid #315364;border-radius:12px;
+ box-shadow:0 20px 80px #000e;padding:18px;box-sizing:border-box;
+}
+#mulliganTitle{font-size:18px;font-weight:700;margin:0 0 5px}
+#mulliganInfo{font-size:11px;color:#9db0bb;margin-bottom:14px}
+#mulliganCards{
+ display:flex;justify-content:center;align-items:flex-end;
+ gap:10px;min-height:205px;flex-wrap:nowrap;margin:8px 0 18px;overflow:visible;
+}
+.mulligan-card{
+ width:139px;height:195px;flex:0 0 139px;position:relative;cursor:pointer;
+ border-radius:8px;box-sizing:border-box;transition:transform .12s,box-shadow .12s,opacity .12s;
+}
+.mulligan-card img{width:100%;height:100%;object-fit:cover;border-radius:8px;display:block;pointer-events:none}
+.mulligan-card.selected{
+ transform:translateY(-14px);
+ box-shadow:0 0 0 3px #e6c65c,0 8px 20px #000b;
+}
+#mulliganActions{display:flex;justify-content:center;gap:8px}
+#mulliganActions button{min-width:130px}
+#mulliganActions .danger{border-color:#805353}
+#mulliganBottomNote{text-align:center;font-size:11px;color:#d7c77d;min-height:16px;margin-bottom:8px}
+
+.hidden{display:none!important}
+
+/* Small edge control for double-faced / transforming cards. */
+.flip-card-btn{position:absolute;left:5px;top:5px;transform:none;width:24px;height:24px;padding:0;border:1px solid #7894a3;border-radius:50%;background:#10232d;color:#e8f5fb;font-size:14px;line-height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:30;box-shadow:0 2px 7px #000b;pointer-events:auto}
+.flip-card-btn:hover{background:#183b4b;border-color:#a7d7e8}
+
+/* Large readable card preview: centered on the horizontal divider and flush left. */
+#cardHoverPreview{
+ position:fixed;left:0;top:50%;transform:translateY(-50%);
+ width:240px;height:336px;padding:0;box-sizing:border-box;
+ display:none;align-items:center;justify-content:center;
+ z-index:1000;pointer-events:none;
+ filter:drop-shadow(0 8px 24px #000d);
+}
+#cardHoverPreview.open{display:flex}
+#cardHoverPreview img{
+ width:100%;height:100%;object-fit:contain;display:block;border-radius:9px;
+}
+#cardHoverPreview .preview-fallback{
+ width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+ padding:14px;box-sizing:border-box;text-align:center;
+ color:#dce8ef;background:#17232c;border:1px solid #46606e;border-radius:9px;
+ font-size:13px;line-height:1.25;
+}
+.missing-card-image{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  padding:8px;box-sizing:border-box;
+  text-align:center;font-size:10px;line-height:1.15;
+  color:#dbe7ef;background:#17232c;border-radius:8px;
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="table">
+  <section class="seat" id="p3">
+    <h3>Player 3</h3><span class="seat-label">BATTLEFIELD</span>
+    <div class="player-field" id="field3"><span class="player-field-title">Player 3 Battlefield</span></div>
+    <div class="player-zones" id="zones3"></div>
+    <div class="hand" id="hand3"></div>
+  </section>
+  <section class="seat" id="p2">
+    <h3>Player 2</h3><span class="seat-label">BATTLEFIELD</span>
+    <div class="player-field" id="field2"><span class="player-field-title">Player 2 Battlefield</span></div>
+    <div class="player-zones" id="zones2"></div>
+    <div class="hand" id="hand2"></div>
+  </section>
+  <section class="seat" id="p4">
+    <h3>Player 4</h3><span class="seat-label">BATTLEFIELD</span>
+    <div class="player-field" id="field4"><span class="player-field-title">Player 4 Battlefield</span></div>
+    <div class="player-zones" id="zones4"></div>
+    <div class="hand" id="hand4"></div>
+  </section>
+  <section class="seat" id="p1">
+    <h3 id="p1name">Player 1</h3><span class="seat-label">YOU • BATTLEFIELD</span>
+    <div class="player-field" id="field1"><span class="player-field-title">Your Battlefield</span></div>
+    <div class="player-zones" id="zones1"></div>
+    <div class="hand" id="hand"></div>
+  </section>
+</div>
+<div id="deckInfo">No deck imported.</div>
+  <button id="deckBtn" class="hidden" style="position:absolute;right:10px;top:10px;z-index:40">Deck / Import</button>
+
+  <div id="cardHoverPreview" aria-hidden="true"></div>
+
+  <div id="toolbar">
+    <h2>Command Beacon — clean play sandbox</h2>
+    <p>Only deck import + table layout. Cards are completely free to move. No MTG rules, mana, phases or legality checks.</p>
+    <div class="row">
+      <input id="moxUrl" placeholder="Public Moxfield deck URL">
+      <button id="moxBtn">Import Moxfield</button>
+    </div>
+    <p>Or paste Moxfield export text:</p>
+    <textarea id="deckText" placeholder="1 Sol Ring&#10;1 Command Tower&#10;..."></textarea>
+    <div class="row">
+      <button id="textBtn">Import deck text</button>
+      <button id="clearBtn">Clear table</button>
+    </div>
+    <div id="status"></div>
+  </div>
+</div>
+
+<div id="mulliganOverlay">
+  <div id="mulliganBox">
+    <div id="mulliganTitle">Opening Hand</div>
+    <div id="mulliganInfo"></div>
+    <div id="mulliganCards"></div>
+    <div id="mulliganBottomNote"></div>
+    <div id="mulliganActions">
+      <button id="mulliganBtn">Mulligan</button>
+      <button id="keepHandBtn">Keep Hand</button>
+    </div>
+  </div>
+</div>
+
+<div id="loading"></div>
+
 <script>
-const sample=["Sol Ring","Command Tower","Arcane Signet","Counterspell","Lightning Bolt","Force of Will","Island","Mountain","Plains","Forest","Swamp","Swords to Plowshares","Brainstorm","Cultivate","Llanowar Elves"];
-const cache={};
-const phases=["Untap","Upkeep","Draw","Main 1","Beginning of Combat","Declare Attackers","Declare Blockers","First Strike Damage","Combat Damage","End of Combat","Main 2","End Step","Cleanup"];
-const COLORS=['W','U','B','R','G','C'];
-const state={players:[],active:1,phaseIndex:0,stack:[],priority:1,log:[],turn:1,reaction:null,openingMulligan:true,mulligans:0,gameStarted:false,setupStage:'deck',deckTitle:'',timer:{remaining:45,lastAction:0,maxTurn:300,turnElapsed:0,interval:null}};
-function newPlayer(id){return{id,name:`Player ${id}`,seated:true,life:40,hand:[],library:[],battlefield:[],graveyard:[],exile:[],commandZone:[],mana:{W:0,U:0,B:0,R:0,G:0,C:0},landPlays:1,landPlayed:0,landPlayBonus:0,poison:0,experience:0,energy:0,rad:0,monarch:false,initiative:false,cityBlessing:false,commanderDamage:{},commanderCasts:{},attackers:[],blockers:{},blockConfirmed:false,attackTargets:{},damageMarked:0}}
-state.players=[1,2,3,4].map(newPlayer);
-function seatedPlayers(){return state.players.filter(x=>x.seated)}
-function paidMulligans(){return Math.max(0,state.mulligans-1)}
-function chooseStartingPlayer(){const ids=seatedPlayers();if(!ids.length)return 1;if(ids.length===1)return ids[0].id;return ids[Math.floor(Math.random()*ids.length)].id}
-function nextSeated(fromId){const ids=seatedPlayers().map(x=>x.id);if(!ids.length)return fromId;const i=ids.indexOf(fromId);return ids[(i+1+ids.length)%ids.length]}
-function hasSeat(id){return !!state.players[id-1]?.seated}
-function setSeat(id,on){if(id===1)return;const pl=state.players[id-1];pl.seated=on;if(!on){pl.attackers=[];pl.blockers={};if(state.active===id){state.active=nextSeated(id);state.priority=state.active;resetTurnTimer()}}log(`${pl.name} ${on?'joined':'left'} the table.`);render()}
-function p(id=state.active){return state.players[id-1]}
-function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function log(s){state.log.unshift(s);document.querySelector('#log').innerHTML=state.log.slice(0,30).map(x=>`<div>${esc(x)}</div>`).join('')}
-function back(){return 'https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/f/f8/Magic_card_back.jpg/revision/latest/scale-to-width-down/250?cb=20140813141013'}
-function normalizedCard(raw){
- const faces=Array.isArray(raw?.card_faces)&&raw.card_faces.length?raw.card_faces:[raw];
- const front=faces[0]||{};
- const second=faces.length>1?faces[1]:null;
- const display=(second&&second.image_uris)?second:front;
- const landFace=faces.find(f=>/\bLand\b/i.test(f?.type_line||''))||null;
- const play=landFace||front;
- const frontOracle=front.oracle_text||'';
- const displayOracle=display.oracle_text||frontOracle;
- const faceImg=f=>f?.image_uris?.normal||f?.image_uris?.large||f?.image_uris?.small||'';
- const img=faceImg(display)||faceImg(front)||'';
- const artCrop=front?.image_uris?.art_crop||second?.image_uris?.art_crop||'';
- const type=play.type_line||front.type_line||'';
- const isLand=!!landFace || /\bLand\b/i.test(front.type_line||'');
- return {
-  name:raw?.name||front.name||'',
-  type,
-  oracle:isLand?(landFace.oracle_text||''):frontOracle,
-  displayOracle,
-  img,
-  artCrop,
-  colors:play.colors||raw?.colors||front.colors||[],
-  cmc:raw?.cmc??front.cmc??0,
-  manaCost:front.mana_cost||raw?.mana_cost||'',
-  power:front.power==null?null:+front.power,
-  toughness:front.toughness==null?null:+front.toughness,
-  subtypes:play.subtypes||front.subtypes||[],
-  isLand,
-  isCreature:/\bCreature\b/i.test(type),
-  isInstant:/\bInstant\b/i.test(front.type_line||type),
-  isSorcery:/\bSorcery\b/i.test(front.type_line||type),
-  hasHaste:/\bhaste\b/i.test(frontOracle)||raw?.keywords?.some(k=>/^Haste$/i.test(k))||false,
-  keywords:raw?.keywords||front.keywords||[],
-  faces,
-  frontFace:front,
-  backFace:second,
-  isCommander:false
- }; 
-}
-
-async function card(name){
- if(cache[name])return cache[name];
- const fail={name,type:'',oracle:'',displayOracle:'',img:'',colors:[],cmc:0,manaCost:'',power:null,toughness:null,subtypes:[],isLand:false,isCreature:false,isInstant:false,isSorcery:false,hasHaste:false,keywords:[],faces:[],isCommander:false};
- try{
-  const r=await fetch('https://api.scryfall.com/cards/named?exact='+encodeURIComponent(name),{headers:{'Accept':'application/json'}});
-  if(!r.ok)throw new Error('Scryfall '+r.status);
-  const d=await r.json();
-  return cache[name]=normalizedCard(d);
- }catch(e){cache[name]=fail;return fail}
-}
-function manaAbility(c){const o=c.oracle||'';return /(^|\n).*:\s*.*\badd\b.*(?:mana|\{[WUBRGC]\})/i.test(o)||/\badd\s+(?:\{[WUBRGC]\}|one|two|three|four|five|six|seven|eight|nine|ten)\s+mana\b/i.test(o)}
-function hasFlash(c){return c.keywords?.some(k=>k.toLowerCase()==='flash')||/\bflash\b/i.test(c.oracle||'')}
-function emptyMana(){return {W:0,U:0,B:0,R:0,G:0,C:0}}
-function parseManaCost(cost){const out={W:0,U:0,B:0,R:0,G:0,C:0,generic:0};for(const t of (cost||'').match(/\{[^}]+\}/g)||[]){const x=t.slice(1,-1);if(/^\d+$/.test(x))out.generic+=+x;else if(x in out)out[x]++;else if(x.includes('/')){out.generic++;}else if(/^X$/i.test(x)){}else out.generic++}return out}
-function totalMana(m){return COLORS.reduce((a,c)=>a+(m[c]||0),0)}
-function canPayPool(pool,cost){const need=parseManaCost(cost);const m={...pool};for(const c of COLORS){const n=need[c]||0;if((m[c]||0)<n)return false;m[c]-=n}let generic=need.generic||0;for(const c of COLORS){const take=Math.min(m[c]||0,generic);m[c]-=take;generic-=take}return generic===0}
-function canPay(pl,cost){return canPayPool(pl.mana,cost)}
-function canAutoPay(pl,cost){return canPay(pl,cost)||!!findManaSourcesForCost(pl,cost)}
-function landManaOptions(c){const o=c.oracle||'';const found=[];const re=/\{([WUBRGC])\}/g;let m;while((m=re.exec(o)))found.push(m[1]);if(!found.length&&/add\s+(?:one|two|three|four|five|six|seven|eight|nine|ten)\s+mana/i.test(o))found.push('C');return [...new Set(found)]}
-function canCastWithOneLand(pl,c){if(c.isLand||!pl.hand.includes(c)||!c.manaCost)return false;if(canPay(pl,c.manaCost))return true;const lands=pl.hand.filter(x=>isLandCard(x)&&canLand(pl));return lands.some(land=>{const pool={...pl.mana};landManaOptions(land).forEach(m=>{pool[m]=(pool[m]||0)+1});return canPayPool(pool,c.manaCost)})}
-function hasExtraLandfall(pl){return pl.battlefield.some(c=>/landfall/i.test(c.oracle||'')&&/(additional land|play an additional land)/i.test(c.oracle||''))}
-function manaPoolAfterSources(pl, choices){
- const pool={...pl.mana};
- choices.forEach(([i,m])=>{pool[m]=(pool[m]||0)+1});
- return pool;
-}
-function findManaSourcesForCost(pl,cost){
- const sources=pl.battlefield.map((c,i)=>({i,c,opts:landManaOptions(c)}))
-   .filter(x=>!x.c.tapped&&x.opts.length&&manaAbility(x.c));
- const need=parseManaCost(cost);
- function satisfies(pool){
-   return canPayPool(pool,cost);
- }
- // Try combinations of untapped mana sources. This lets the game automatically
- // tap lands/mana rocks when a spell is cast, like MTG Arena.
- function search(pos, chosen, pool){
-   if(satisfies(pool)) return chosen;
-   if(pos>=sources.length) return null;
-   for(let k=pos;k<sources.length;k++){
-     for(const m of sources[k].opts){
-       const next={...pool}; next[m]=(next[m]||0)+1;
-       const result=search(k+1,[...chosen,[sources[k].i,m]],next);
-       if(result)return result;
-     }
-   }
-   return null;
- }
- return search(0,[],{...pl.mana});
-}
-function autoPayFromManaSources(pl,cost){
- if(canPay(pl,cost))return true;
- const choices=findManaSourcesForCost(pl,cost);
- if(!choices)return false;
- for(const [i,m] of choices){
-   const c=pl.battlefield[i];
-   if(!c||c.tapped)continue;
-   c.tapped=true;
-   pl.mana[m]=(pl.mana[m]||0)+1;
- }
- return canPay(pl,cost);
-}
-function payMana(pl,cost){const need=parseManaCost(cost);for(const c of COLORS){pl.mana[c]-=need[c]||0}let generic=need.generic||0;for(const c of COLORS){const take=Math.min(pl.mana[c],generic);pl.mana[c]-=take;generic-=take}return generic===0}
-function manaText(m){return COLORS.filter(c=>m[c]).map(c=>`${c}:${m[c]}`).join(' ')||'—'}
-function isLandCard(c){if(!c)return false;const lines=[c.type_line,c.type,c.frontFace?.type_line,c.frontFace?.type,c.backFace?.type_line,c.backFace?.type,...(Array.isArray(c.faces)?c.faces.flatMap(f=>[f?.type_line,f?.type]):[])].filter(Boolean);return c.isLand===true||lines.some(t=>/(^|\s|—)Land(\s|—|$)/i.test(String(t)))}
-function canLand(pl){return isMain()&&pl.landPlayed<pl.landPlays}
-function isMain(){return state.phaseIndex===3||state.phaseIndex===10}
-function canCast(pl,c){if(isLandCard(c)||!pl.hand.includes(c))return false;if(!canPay(pl,c.manaCost))return false;if(isMain())return true;return c.isInstant||hasFlash(c)}
-function legalCards(pl){return pl.hand.filter(c=>isLandCard(c)?canLand(pl):canCast(pl,c))}
+const BACK='https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/f/f8/Magic_card_back.jpg/revision/latest/scale-to-width-down/250?cb=20140813141013';
+const state={
+  cards:[],deckTitle:'',commander:null,commanderInZone:false,handCards:[],
+  zones:{
+    1:{graveyard:[],exile:[]},
+    2:{graveyard:[],exile:[]},
+    3:{graveyard:[],exile:[]},
+    4:{graveyard:[],exile:[]}
+  },
+  mulliganCount:0,mulliganOpen:false,bottomCount:0,bottomSelected:new Set()
+};
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function setStatus(s){document.querySelector('#status').textContent=s||''}
+function showLoading(s){const x=document.querySelector('#loading');x.textContent=s||'Loading…';x.style.display='flex'}
+function hideLoading(){document.querySelector('#loading').style.display='none'}
 function cardImg(c){
- const faces=Array.isArray(c?.faces)?c.faces:[];
- if(faces.length>1){
-  const f=faces[1];
-  const u=f?.image_uris||{};
-  return u.normal||u.large||u.small||c?.img||back();
- }
- return c?.img||back();
+  if(!c)return BACK;
+  const faces=Array.isArray(c.faces)?c.faces:[];
+  const f=c.img?c:(faces[0]||{});
+  const u=f.image_uris||{};
+  return c.img||u.normal||u.large||u.small||BACK;
 }
-function phaseHint(){
- const pl=p();if(!pl)return '';
- if(state.phaseIndex===0)return 'Untap: permanents untap automatically. No priority is given during untap.';
- if(state.phaseIndex===1)return 'Upkeep: skipped automatically unless a triggered ability needs to go on the stack.';
- if(state.phaseIndex===2)return 'Draw: draw automatically, then continue to Main 1.';
- if(state.phaseIndex===3||state.phaseIndex===10)return 'Main phase: play a land if you have a land play; cast spells you can legally cast.';
- if(state.phaseIndex===4)return 'Beginning of combat: combat-start triggers may go on the stack.';
- if(state.phaseIndex===5)return 'Declare attackers: choose attackers. Green = legal; red = mandatory requirement.';
- if(state.phaseIndex===6)return 'Declare blockers: defending players choose legal blockers, then confirm.';
- if(state.phaseIndex===7)return 'First-strike damage step. It only occurs when first/double strike matters.';
- if(state.phaseIndex===8)return 'Combat damage step.';
- if(state.phaseIndex===9)return 'End of combat: final combat-only triggers and priority.';
- if(state.phaseIndex===11)return 'End step: end-step triggers go on the stack before cleanup.';
- if(state.phaseIndex===12)return 'Cleanup: discard to maximum hand size, remove marked damage, and end temporary effects.';
- return '';
+function normalizedCard(raw){
+  const faces=Array.isArray(raw?.card_faces)&&raw.card_faces.length?raw.card_faces:[raw];
+  const front=faces[0]||{};
+  const second=faces[1]||null;
+  const iu=front.image_uris||raw?.image_uris||{};
+  return {
+    name:raw?.name||front?.name||'Unknown',
+    img:iu.normal||iu.large||iu.small||'',
+    artCrop:iu.art_crop||'',
+    type:raw?.type_line||front?.type_line||'',
+    oracle:raw?.oracle_text||front?.oracle_text||'',
+    manaCost:raw?.mana_cost||front?.mana_cost||'',
+    colors:raw?.colors||front?.colors||[],
+    cmc:raw?.cmc||0,
+    faces,
+    frontFace:front,
+    backFace:second,
+    set:raw?.set||'',
+    collectorNumber:raw?.collector_number||'',
+    scryfallId:raw?.id||''
+  };
 }
-function showSetupDeck(){
- document.body.classList.add('pre-game');
- state.gameStarted=false;state.setupStage='deck';state.openingMulligan=true;state.mulligans=0;
- const el=document.querySelector('#setupModal');if(!el)return;
- el.innerHTML=`<div class="setup-overlay"><div class="setup-panel"><div class="setup-titlebar"><div><h1>Choose your deck</h1><div class="sub">Load a Commander deck before the game starts. Import your deck first. You will see a 7-card starting hand and must Keep or Mulligan before the battlefield begins.</div></div><span class="setup-badge">COMMAND BEACON v55</span></div><div class="setup-grid"><div class="setup-card"><h3>Import from Moxfield</h3><div class="setup-status">Paste a public Moxfield deck URL.</div><input id="setupMoxUrl" placeholder="https://moxfield.com/decks/..." value=""><div class="setup-actions"><button onclick="setupImportMoxfield()">Import from Moxfield</button></div></div><div class="setup-card"><h3>Use a sample deck</h3><div class="setup-status">Use the built-in test deck to test the rules engine immediately.</div><div class="setup-actions"><button onclick="setupLoadSample()">Use sample Commander deck</button></div></div></div><div class="setup-card" style="margin-top:14px"><h3>Paste exported decklist</h3><textarea id="setupDeckText" placeholder="If Moxfield blocks browser access, paste the exported decklist here — the game will continue normally."></textarea><div class="setup-actions"><button onclick="setupImportText()">Import decklist</button></div></div><div id="setupStatus" class="setup-status" style="margin-top:12px"></div></div></div>`;
+async function fetchNamedFullCard(name){
+  try{
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),8000);
+    try{
+      const r=await fetch('https://api.scryfall.com/cards/named?exact='+encodeURIComponent(name),{signal:controller.signal,cache:'no-store'});
+      if(!r.ok)return null;
+      return normalizedCard(await r.json());
+    }finally{clearTimeout(timer)}
+  }catch{return null}
 }
-function setupStatus(msg,ok=false){const el=document.querySelector('#setupStatus');if(el){el.className=`setup-status ${ok?'setup-ok':'setup-error'}`;el.textContent=msg}}
-function setupLoadSample(){importDeck(true)}
-async function setupImportMoxfield(){
- const input=document.querySelector('#setupMoxUrl')?.value||'',id=extractMoxfieldId(input);if(!id){setupStatus('Enter a valid public Moxfield deck URL.');return}
- setupStatus('Connecting to Moxfield…',true);
- try{
-  const deck=await fetchMoxfieldDeck(id);
-  const lists=deck?.__lists||extractDeckNames(deck);
-  if(!usableDeckLists(lists))throw new Error('Moxfield response did not contain a valid card list.');
-  setupStatus('Deck found. Loading cards…',true);
-  await loadImportedDeck(lists,deck?.name||'Moxfield deck',true);
- }catch(e){setupStatus(`Moxfield import failed: ${e.message||e}`)}
-}
-async function setupImportText(){
- const text=document.querySelector('#setupDeckText')?.value||'',lists=parseDeckText(text);if(!usableDeckLists(lists)){setupStatus('Could not read a valid card list.');return}
- setupStatus('Loading decklist…',true);try{await loadImportedDeck(lists,'Imported decklist',true)}catch(e){setupStatus(`Deck import failed: ${e.message||e}`)}}
-function showOpeningHand(){
- document.body.classList.add('pre-game');
- state.setupStage='mulligan';state.openingMulligan=true;
- const pl=p(1),el=document.querySelector('#setupModal');if(!el)return;
- const selected=state.mulliganSelected||[];
- const hand=pl.hand.map((c,i)=>`<div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:92px"><img class="card ${selected.includes(i)?'selected':''}" src="${cardImg(c)}" title="${esc(c.name)} — click to select for bottom" onclick="toggleMulliganCard(${i})" onerror="this.onerror=null;this.src=back()"><div style="font-size:9px;text-align:center;color:#d9e5eb;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name||'Unknown card')}</div></div>`).join('');
- const need=paidMulligans();
- el.innerHTML=`<div class="setup-overlay"><div class="setup-panel"><div class="setup-titlebar"><div><h1>Opening hand</h1><div class="sub">${esc(state.deckTitle||'Commander deck')} • ${pl.hand.length} cards</div></div><span class="setup-badge">MULLIGAN ${state.mulligans}</span></div><div class="setup-hand">${hand||'<span class="empty">No cards</span>'}</div><div class="setup-choice"><button onclick="keepOpeningHand()">Keep hand</button><button onclick="mulliganOpeningHand()">Mulligan</button></div><div class="setup-status" style="text-align:center;margin-top:12px">${need?`You have taken ${state.mulligans} mulligan(s). Select exactly ${need} card(s) to put on the bottom of your library.`:'First mulligan is free. On Keep, no card goes to the bottom.'}</div></div></div>`;
-}
-function toggleMulliganCard(i){
- if(!state.openingMulligan)return;
- const pl=p(1);
- if(paidMulligans()===0)return;
- const pos=state.mulliganSelected.indexOf(i);
- if(pos>=0)state.mulliganSelected.splice(pos,1);
- else if(state.mulliganSelected.length<paidMulligans())state.mulliganSelected.push(i);
- showOpeningHand();
-}
-function keepOpeningHand(){
- const pl=p(1);
- const need=paidMulligans();
- if(need>0 && state.mulliganSelected.length!==need){
-  setupStatus(`Select exactly ${need} card(s) to put on the bottom of the library before keeping.`,false);
-  return;
- }
- if(need>0){
-  const chosen=[...state.mulliganSelected].sort((a,b)=>b-a).map(i=>pl.hand.splice(i,1)[0]);
-  pl.library.push(...chosen); // these are bottom cards; library order is preserved after this point
-  log(`${pl.name} kept after ${need} mulligan(s); ${chosen.length} selected card(s) returned to the bottom of the library.`);
- }
- state.mulliganSelected=[];
- state.openingMulligan=false;state.setupStage='game';state.gameStarted=true;document.body.classList.remove('pre-game');state.active=chooseStartingPlayer();state.priority=state.active;state.phaseIndex=0;state.turn=1;state.stack=[];resetTurnTimer();document.querySelector('#setupModal').innerHTML='';log(`${p().name} was selected as the starting player.`);render();startStep()
-}
-function mulliganOpeningHand(){
- const pl=p(1);
- pl.library.push(...pl.hand);
- pl.hand=[];
- pl.library.sort(()=>Math.random()-.5);
- pl.hand=pl.library.splice(0,7);
- state.mulligans++;
- state.mulliganSelected=[];
- log(`${pl.name} took mulligan #${state.mulligans}; drew 7 new cards.`);
- showOpeningHand()
-}
-function nextButtonLabel(){
- if(state.phaseIndex===3)return 'To Combat';
- if(state.phaseIndex===5)return 'To Blockers';
- if(state.phaseIndex===6)return 'To Damage';
- if(state.phaseIndex===7)return 'Next';
- if(state.phaseIndex===8)return 'Next';
- if(state.phaseIndex===9)return 'To Main 2';
- if(state.phaseIndex===10)return 'To End';
- if(state.phaseIndex===11)return 'End Turn';
- return 'Next';
-}
-function renderPhaseLadder(){
- const el=document.querySelector('#phaseLadder');if(!el)return;
- const groups=[['Beginning',[0,1,2]],['Main 1',[3]],['Combat',[4,5,6,7,8,9]],['Main 2',[10]],['End',[11,12]]];
- el.innerHTML=groups.map((g,i)=>{const active=g[1].includes(state.phaseIndex);const done=state.phaseIndex>Math.max(...g[1]);return `${i?'<span class="phase-arrow">›</span>':''}<div class="phase-node ${active?'active':''} ${done?'done':''}"><span class="diamond"></span><span>${g[0]}</span></div>`}).join('');
-}
-function render(){
- const nextBtn=document.querySelector('#nextBtn'),turnBtn=document.querySelector('#turnBtn'); if(nextBtn){nextBtn.disabled=!state.gameStarted||state.priority!==state.active||!!state.stack.length; nextBtn.textContent=nextButtonLabel()} if(turnBtn){turnBtn.disabled=!state.gameStarted||state.priority!==state.active||!!state.stack.length||state.phaseIndex<11} 
- renderSeatControls();state.players.forEach(renderSeat);
- const stackDock=document.querySelector('#stackDock');document.querySelector('#stack').innerHTML=state.stack.map(x=>`<div class="stackitem">${esc(x.label||x)}</div>`).join('');stackDock.classList.toggle('show',state.stack.length>0);document.querySelector('#phaseHint').textContent=phaseHint();
- renderPhaseLadder();document.querySelector('#phaseActions').innerHTML=state.phaseIndex===5?`<div style="font-size:9px;color:#8ea5b4;margin-bottom:4px">Attack target per attacker</div>${p().attackers.map(i=>{const c=p().battlefield[i];return `<label style="font-size:9px">${esc(c?.name||'Attacker')} <select onchange="chooseAttackTarget(${i},this.value)"><option value="">choose player</option>${seatedPlayers().filter(x=>x.id!==p().id).map(x=>`<option value="${x.id}" ${p().attackTargets[i]===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label>`}).join('')}<button onclick="confirmAttackers()">Confirm attackers</button>`:'';
- document.querySelector('#turn').textContent=`Turn ${state.turn} • ${p().name}`;document.querySelector('#step').textContent=phases[state.phaseIndex];document.querySelector('#priority').textContent=`Priority: ${p(state.priority)?.name||'—'}`;
- const pl=p();document.querySelector('#legalInfo').innerHTML=`<b>${esc(pl.name)}</b> • ${esc(phases[state.phaseIndex])}<br>Land plays: ${Math.max(0,pl.landPlays-pl.landPlayed)} • Mana: ${esc(manaText(pl.mana))}${state.openingMulligan?' <br><button onclick="freeMulligan()">Free Mulligan</button>':''}`;
-}
-function renderSeatControls(){document.querySelector('#seatsCtl').innerHTML=state.players.map(x=>`<button class="seatToggle" onclick="setSeat(${x.id},${!x.seated})">P${x.id}: ${x.seated?'seated':'empty'}</button>`).join('')}
-function renderSeat(pl){
- const el=document.querySelector('#seat'+pl.id);const you=pl.id===1,active=pl.id===state.active;
- const commander=pl.commandZone?.[0]||null;const commanderImg=commander?.artCrop||commander?.frontFace?.image_uris?.art_crop||commander?.img||'';el.className=`seat ${you?'you':''} ${active?'active':''} ${pl.seated?'':'emptySeat'} ${commanderImg?'commander-bg':''}`;el.style.removeProperty('--cmd-bg');if(commanderImg){const safe=String(commanderImg).replace(/"/g,'\"');el.style.backgroundImage=`linear-gradient(180deg,rgba(5,10,15,.42),rgba(5,10,15,.80)),url("${safe}")`;el.style.backgroundSize='100% 100%';el.style.backgroundRepeat='no-repeat';el.style.backgroundPosition='center';}else{el.style.backgroundImage='';el.style.backgroundSize='';el.style.backgroundRepeat='';el.style.backgroundPosition='';}
- if(!pl.seated){el.innerHTML=`<div class="head"><div><div class="name">${pl.name}</div><div class="meta">Seat empty — skipped in turn order</div></div></div><div class="battle"><span class="empty">No player seated</span></div>`;return}
- const cards=pl.battlefield.map((c,i)=>{let cls='card'+(c.tapped?' tapped':'');let click='';
-   if(active&&state.phaseIndex===5&&c.isCreature&&!c.tapped&&!c.summoningSick){const req=/\bgoad(ed)?\b|must attack/i.test(c.oracle||'');cls+=req?' required':' attackable';if(pl.attackers.includes(i))cls+=' selected';click=`toggleAttacker(${i})`}
-   else if(active&&state.priority===pl.id&&manaAbility(c)&&!c.tapped){cls+=' attackable';click=`activateMana(${i})`}
-   else if(!active&&state.phaseIndex===6&&c.isCreature&&!c.tapped&&!c.summoningSick&&state.active!==pl.id){const a=p();const ai=a.attackers.find(x=>a.attackTargets[x]===pl.id);if(ai!==undefined){click=`toggleBlocker(${pl.id},${i},${ai})`;if((pl.blockers[ai]||[]).includes(i))cls+=' selected'}}
-   return `<img class="${cls}" src="${cardImg(c)}" title="${esc(c.name)}" onclick="${click}" onerror="this.onerror=null;this.src=back()">`}).join('')||'<span class="empty">Battlefield empty</span>';
- const cmd=Object.entries(pl.commanderDamage).map(([k,v])=>`${esc(k)} ${v}`).join(' • ')||'0';
- const hand=pl.hand.map((c,i)=>{const activePlayer=pl.id===state.active&&state.priority===pl.id;const land=isLandCard(c);const landLegal=activePlayer&&land&&canLand(pl);const spellLegal=activePlayer&&!land&&canCast(pl,c);const autoManaLegal=activePlayer&&!land&&canCast(pl,c)&&canAutoPay(pl,c.manaCost);const legal=landLegal||spellLegal||autoManaLegal;const cls=legal?'legal':'';const title=landLegal?'playable land':spellLegal?'playable':autoManaLegal?'playable — mana will be tapped automatically':'not currently playable';return `<div class="hand-card-hit" draggable="true" role="button" tabindex="0" data-hand-index="${i}" data-card-action="play" title="${esc(c.name)} — ${title}" ondragstart="startHandDrag(event,${i})" ondragend="endHandDrag(event)"><img class="card ${cls}" draggable="false" src="${cardImg(c)}" alt="${esc(c.name)}" onerror="this.onerror=null;this.src=back()"></div>`}).join('');
-function startHandDrag(e,i){
- const seat=e.currentTarget.closest('.seat');
- const payload={playerId:Number(seat?.id?.replace('seat','')),index:Number(i)};
- e.currentTarget._handPointerDragged=true;e.currentTarget._dragMoved=true;
- e.dataTransfer.effectAllowed='move';
- e.dataTransfer.setData('application/x-command-beacon-card',JSON.stringify(payload));
- e.dataTransfer.setData('text/plain',JSON.stringify(payload));
- e.currentTarget.classList.add('dragging');
-}
-function directHandPointer(e,i){if(e.button!==0)return;const pl=p();const c=pl?.hand?.[Number(i)];if(c?.isLand&&pl.id===state.active&&state.priority===pl.id&&canLand(pl)){e.preventDefault();e.stopPropagation();playCard(Number(i));}}
-function endHandDrag(e){e.currentTarget.classList.remove('dragging')}
-function allowCardDrop(e){e.preventDefault();e.dataTransfer.dropEffect='move'}
-function dropHandCard(e){handleHandDrop(e)}
- const manaButtons=pl.id===state.active&&state.priority===pl.id?pl.battlefield.map((c,i)=>manaAbility(c)&&!c.tapped?`<button class="mana-btn" onclick="activateMana(${i})">${esc(c.name)}: Mana</button>`:'').join(''):'';
- el.innerHTML=`<div class="head"><div><div class="name">${pl.name}${you?' (YOU)':''}</div><div class="meta">${pl.hand.length} cards • Mana ${esc(manaText(pl.mana))} • Commander dmg ${cmd}</div><div class="counters"><span class="counter">☠ ${pl.poison}</span><span class="counter">★ ${pl.experience}</span><span class="counter">⚡ ${pl.energy}</span><span class="counter">☢ ${pl.rad}</span>${pl.monarch?'<span class="counter">👑 Monarch</span>':''}${pl.initiative?'<span class="counter">⚔ Initiative</span>':''}</div></div><div class="life">${pl.life} ♥</div></div><div class="zones"><span class="zone" onclick="openZone(${pl.id},'library')" title="Library">Library ${pl.library.length}</span><span class="zone" onclick="openZone(${pl.id},'graveyard')" title="Graveyard">Graveyard ${pl.graveyard.length}</span><span class="zone" onclick="openZone(${pl.id},'exile')" title="Exile">Exile ${pl.exile.length}</span><span class="zone" onclick="openZone(${pl.id},'commandZone')" title="Command Zone">Command ${pl.commandZone.length}</span></div><div class="battle" ondragover="allowCardDrop(event)" ondrop="dropHandCard(event)"><div class="battlefield">${cards}</div></div><div class="seat-hand">${hand}</div>${manaButtons?`<div style="position:absolute;left:6px;bottom:5px;z-index:8">${manaButtons}</div>`:''}${state.phaseIndex===6&&pl.id!==state.active&&!pl.blockConfirmed?`<button style="position:absolute;right:6px;bottom:6px;z-index:9" onclick="confirmBlockers(${pl.id})">Confirm blockers</button>`:''}${state.phaseIndex===6&&pl.id!==state.active&&pl.blockConfirmed?`<span style="position:absolute;right:6px;bottom:6px;z-index:9;font-size:9px;color:var(--green)">Blocks confirmed</span>`:''}`;
-
-}
-function renderHand(){/* Hands are rendered inside each player's seat. */}
-function resetTurn(pl){pl.mana=emptyMana();pl.landPlayed=0;pl.landPlays=1+pl.landPlayBonus;pl.battlefield.forEach(c=>{if(c.untap!==false)c.tapped=false;if(c.isCreature&&!c.hasHaste)c.summoningSick=true});pl.attackers=[];pl.blockers={};state.timer.turnElapsed=0}
-function processUpkeep(pl){const triggers=[];pl.battlefield.forEach(c=>{if(/at the beginning of (your|each player's) upkeep/i.test(c.oracle||''))triggers.push(c)});triggers.forEach(c=>state.stack.push({label:`${c.name}: upkeep trigger`,type:'trigger',source:c}));if(triggers.length)log(`${pl.name} has ${triggers.length} upkeep trigger(s) on the stack.`)}
-function processRad(pl){if(pl.rad<=0)return;state.stack.push({label:`${pl.name}: Rad trigger`,type:'rad',player:pl.id});log(`${pl.name}'s Rad trigger was put on the stack.`)}
-function choosePlayer(promptText, exclude){const ids=seatedPlayers().filter(x=>x.id!==exclude).map(x=>`${x.id}: ${x.name}`).join('\n');const raw=window.prompt(`${promptText}\n${ids}`);const id=Number(raw);return seatedPlayers().find(x=>x.id===id&&x.id!==exclude)||null}
-function chooseCreature(promptText){const opts=[];for(const pl of seatedPlayers())pl.battlefield.forEach((c,i)=>{if(c.isCreature)opts.push(`${pl.id}/${i}: ${pl.name} — ${c.name}`)});if(!opts.length)return null;const raw=window.prompt(`${promptText}\n${opts.join('\n')}`)||'';const m=raw.match(/^(\d+)\/(\d+)/);if(!m)return null;const pl=p(Number(m[1]));return pl?.battlefield[Number(m[2])] ? {pl,index:Number(m[2]),card:pl.battlefield[Number(m[2])]} : null}
-function dealCombatToPlayer(source,target,dmg){if(!target||dmg<=0)return;target.life-=dmg;if(source?.isCommander){target.commanderDamage[source.name]=(target.commanderDamage[source.name]||0)+dmg;log(`${target.name} takes ${dmg} commander damage from ${source.name}.`)}else log(`${target.name} takes ${dmg} combat damage.`);if(source?.keywords?.some(k=>/infect/i.test(k))||/infect/i.test(source?.oracle||'')){target.poison+=dmg;log(`${target.name} gets ${dmg} poison counter(s).`)}checkStateBasedActions()}
-function resolveEffect(obj){
- if(!obj)return;
- if(obj.type==='rad'){const pl=p(obj.player);const n=Math.min(pl.rad,pl.library.length);const milled=pl.library.splice(0,n);pl.graveyard.push(...milled);const nonland=milled.filter(c=>!c.isLand).length;pl.life-=nonland;pl.rad=Math.max(0,pl.rad-nonland);log(`${pl.name}: Rad resolved — milled ${n}, lost ${nonland} life, removed ${nonland} Rad.`);checkStateBasedActions();return}
- if(obj.type==='cast'){
-  const pl=p(obj.player),c=obj.card,o=(c.oracle||'').toLowerCase();
-  if(c.name==='Counterspell'||/counter target spell/i.test(c.oracle||'')){const target=[...state.stack].reverse().find(x=>x.type==='cast');if(target){const j=state.stack.indexOf(target);state.stack.splice(j,1);const owner=p(target.player);owner.graveyard.push(target.card);log(`${c.name} countered ${target.card.name}.`)}else log(`${c.name}: no spell to counter.`);pl.graveyard.push(c);return}
-  if(c.name==='Lightning Bolt'||/deals? 3 damage to any target/i.test(c.oracle||'')){const raw=window.prompt('Lightning Bolt target: enter player number, or C<player>/<index> for creature');let target=null;if(/^C\d+\/\d+$/.test(raw||'')){const m=raw.match(/^C(\d+)\/(\d+)$/);const tp=p(Number(m[1]));target=tp?.battlefield[Number(m[2])] ? {card:tp.battlefield[Number(m[2])],pl:tp,index:Number(m[2])}:null}else target=p(Number(raw));if(target?.life!=null){target.life-=3;log(`${target.name} took 3 damage from ${c.name}.`);checkStateBasedActions()}else if(target?.card){target.card.damageMarked=(target.card.damageMarked||0)+3;log(`${target.card.name} took 3 damage from ${c.name}.`);if(target.card.damageMarked>=(target.card.toughness||0)){target.pl.graveyard.push(target.card);target.pl.battlefield.splice(target.index,1);log(`${target.card.name} died.`)}}pl.graveyard.push(c);return}
-  if(c.name==='Swords to Plowshares'||/exile target creature/i.test(c.oracle||'')){const target=chooseCreature('Swords to Plowshares — choose a creature');if(target){target.pl.battlefield.splice(target.index,1);target.pl.exile.push(target.card);log(`${target.card.name} was exiled.`);target.pl.life+=target.card.power||0}pl.graveyard.push(c);return}
-  if(c.name==='Brainstorm'||/draw three cards.*put two cards from your hand/i.test(c.oracle||'')){drawCards(pl,3);while(pl.hand.length>7){const idx=Number(window.prompt('Brainstorm: choose a card index to put on top of library (0-based)',String(pl.hand.length-1)));if(!Number.isInteger(idx)||idx<0||idx>=pl.hand.length)break;pl.library.unshift(pl.hand.splice(idx,1)[0]);}pl.graveyard.push(c);log(`${c.name} resolved.`);return}
-  if(c.name==='Cultivate'||/search your library for up to two basic land cards/i.test(c.oracle||'')){const basics=pl.library.filter(x=>x.isLand&&/Basic Land/i.test(x.type||''));const take=basics.slice(0,Math.min(2,basics.length));take.forEach(x=>{pl.library.splice(pl.library.indexOf(x),1);pl.battlefield.push({...x,tapped:true,summoningSick:false})});if(take.length)log(`${c.name}: put ${take.length} basic land(s) onto the battlefield tapped.`);pl.graveyard.push(c);return}
-  if(c.isCreature){pl.battlefield.push({...c,tapped:false,summoningSick:!c.hasHaste})}else pl.graveyard.push(c);log(`${c.name} resolved.`);return
- }
- log(`Resolved: ${obj.label||obj}`)
-}
-function startStep(){
- const pl=p();
- state.priority=state.active;
- // Untap: mandatory game action, no priority.
- if(state.phaseIndex===0){resetTurn(pl);log(`${pl.name}: untap step.`);state.phaseIndex=1;return startStep();}
- // Upkeep: only creates a real stop when a trigger exists.
- if(state.phaseIndex===1){
-  processUpkeep(pl);processRad(pl);log(`${pl.name}: upkeep.`);
-  if(!state.stack.length){state.phaseIndex=2;return startStep();}
- }
- // Draw: mandatory draw, then straight to Main 1.
- if(state.phaseIndex===2){
-  if(drawCards(pl,1))log(`${pl.name} draws for turn.`);
-  state.phaseIndex=3;return startStep();
- }
- if(state.phaseIndex===3){state.priority=state.active;log(`${pl.name}: precombat main.`);}
- // Beginning of combat: only stop when there is a trigger.
- if(state.phaseIndex===4){
-  const triggers=[];
-  pl.battlefield.forEach(c=>{if(/at the beginning of (?:your|each player's) combat/i.test(c.oracle||'')||/at the beginning of combat/i.test(c.oracle||''))triggers.push(c)});
-  triggers.forEach(c=>state.stack.push({label:`${c.name}: beginning of combat trigger`,type:'trigger',source:c}));
-  if(triggers.length)log(`${pl.name} has ${triggers.length} beginning-of-combat trigger(s) on the stack.`);
-  if(!state.stack.length){state.phaseIndex=5;return startStep();}
- }
- if(state.phaseIndex===5){pl.attackers=[];pl.attackTargets={};log(`${pl.name}: choose attackers. Green = legal; red = mandatory requirement.`);}
- if(state.phaseIndex===6){state.players.forEach(x=>{x.blockers={};x.blockConfirmed=(x.id===state.active||!x.seated)});log('Declare blockers.');}
- // First strike damage only exists if at least one attacker/blocker can deal first-strike damage.
- if(state.phaseIndex===7){
-  const hasFirstStrike=p().attackers.some(ai=>{const c=p().battlefield[ai];return c&&(c.keywords?.some(k=>/first strike|double strike/i.test(k))||/first strike|double strike/i.test(c.oracle||''));});
-  if(!hasFirstStrike){state.phaseIndex=8;return startStep();}
-  log(`${pl.name}: first-strike damage step.`);
- }
- if(state.phaseIndex===8){log(`${pl.name}: combat damage step.`);}
- if(state.phaseIndex===9){log(`${pl.name}: end of combat.`);}
- if(state.phaseIndex===10){state.priority=state.active;log(`${pl.name}: postcombat main.`);}
- if(state.phaseIndex===11){
-  const triggers=[];
-  pl.battlefield.forEach(c=>{if(/at the beginning of (?:your|each player's) end step/i.test(c.oracle||'')||/at the beginning of the end step/i.test(c.oracle||''))triggers.push(c)});
-  triggers.forEach(c=>state.stack.push({label:`${c.name}: end-step trigger`,type:'trigger',source:c}));
-  if(triggers.length)log(`${pl.name} has ${triggers.length} end-step trigger(s) on the stack.`);
-  if(!state.stack.length){state.phaseIndex=12;return startStep();}
- }
- if(state.phaseIndex===12){cleanup(pl);state.phaseIndex=0;state.active=nextSeated(state.active);state.turn++;resetTurnTimer();return startStep();}
- render();
- if(state.stack.length)beginPriority();
- else if(state.phaseIndex===5){}
- else if(state.phaseIndex===6){}
- else autoPass();
-}
-function beginPriority(){state.priority=state.active;playerAction();autoPass();render()}
-function advanceStep(fromTimeout=false){
- if(!state.gameStarted)return;
- if(!fromTimeout&&state.priority!==state.active){log('Priority has not returned to the active player.');return}
- if(state.stack.length){log('The stack must resolve before the step can advance.');return}
- if(state.phaseIndex===5){log('Finish Declare Attackers before leaving combat.');return}
- if(state.phaseIndex===6){log('Finish Declare Blockers before leaving combat.');return}
- // In solo testing the button is the Arena-style "Next" control: it advances from a meaningful decision point.
- if(state.phaseIndex===7){resolveCombatDamage(true);state.phaseIndex=8;return startStep();}
- if(state.phaseIndex===8){resolveCombatDamage(false);state.phaseIndex=9;return startStep();}
- if(state.phaseIndex===9){state.phaseIndex=10;return startStep();}
- state.phaseIndex++;
- if(state.phaseIndex>=phases.length){state.phaseIndex=0;state.active=nextSeated(state.active);state.turn++;resetTurnTimer()}
- startStep();
-}
-function passPriority(){
- if(state.priority!==state.active)playerAction();
- const next=nextSeated(state.priority);
- if(state.stack.length){
-  if(next===state.active){resolveTop();state.priority=state.active;render();return}
-  state.priority=next;autoPass();render();return
- }
- if(state.priority===state.active){state.priority=next;autoPass();render();return}
- state.priority=next;autoPass();render()
-}
-function autoPass(){let guard=0;while(guard++<state.players.length+2){if(state.stack.length===0)return;const pl=p(state.priority);if(!legalInteraction(pl)){state.priority=nextSeated(state.priority);if(state.priority===state.active){resolveTop();state.priority=state.active;continue}continue}return}}
-function legalInteraction(pl){return pl.hand.some(c=>c.isInstant&&canCast(pl,c))||pl.battlefield.some(c=>!manaAbility(c)&&/:/.test(c.oracle||''))}
-function resolveTop(){if(!state.stack.length)return;const obj=state.stack.pop();resolveEffect(obj);state.priority=state.active;render()}
-function handAction(e,i,playerId){
- e?.preventDefault?.(); e?.stopPropagation?.();
- const n=Number(i); const pid=Number(playerId);
- if(!Number.isInteger(n)||!Number.isInteger(pid))return;
- playHandCard(pid,n);
-}
-function handleHandCardClick(e,i){handAction(e,i,state.active)}
-function handleHandCardDoubleClick(e,i){handAction(e,i,state.active)}
-function startHandDrag(e,i){
- const seat=e.currentTarget.closest('.seat');
- const payload={playerId:Number(seat?.id?.replace('seat','')),index:Number(i)};
- e.currentTarget._handPointerDragged=true;e.currentTarget._dragMoved=true;
- e.dataTransfer.effectAllowed='move';
- e.dataTransfer.setData('application/x-command-beacon-card',JSON.stringify(payload));
- e.dataTransfer.setData('text/plain',JSON.stringify(payload));
- e.currentTarget.classList.add('dragging');
-}
-function endHandDrag(e){e.currentTarget.classList.remove('dragging')}
-function allowCardDrop(e){e.preventDefault();e.dataTransfer.dropEffect='move'}
-function dropHandCard(e){handleHandDrop(e)}
-function handleHandDrop(e){
- e.preventDefault(); e.stopPropagation();
- let payload=null;
- for(const type of ['application/x-command-beacon-card','text/plain']){
-   try{const raw=e.dataTransfer?.getData(type);if(!raw)continue;const parsed=JSON.parse(raw);if(parsed&&Number.isInteger(Number(parsed.index))){payload=parsed;break}}catch(_){const raw=e.dataTransfer?.getData(type);if(raw!==''&&Number.isInteger(Number(raw))){payload={index:Number(raw)};break}}
- }
- if(!payload)return;
- const targetSeat=e.currentTarget.closest('.seat');
- const targetPlayerId=Number(targetSeat?.id?.replace('seat',''));
- const playerId=Number.isInteger(Number(payload.playerId))&&Number(payload.playerId)>0?Number(payload.playerId):targetPlayerId||state.active;
- const index=Number(payload.index);
- if(!Number.isInteger(index)||index<0)return;
- if(targetPlayerId&&playerId!==targetPlayerId){log('Drop the card onto your own battlefield.');return}
- handAction(e,index,playerId);
-}
-// Single authoritative hand input path. Capture pointerup once, before other layers can swallow it.
-if(!window.__handInteractionV55){
- window.__handInteractionV55=true;
- document.addEventListener('pointerdown',e=>{
-   const hit=e.target.closest?.('.seat-hand .hand-card-hit[data-hand-index]');
-   if(!hit||e.button!==0)return;
-   hit.__cbStartX=e.clientX; hit.__cbStartY=e.clientY; hit.__cbPointerId=e.pointerId;
- },true);
- document.addEventListener('pointerup',e=>{
-   const hit=e.target.closest?.('.seat-hand .hand-card-hit[data-hand-index]');
-   if(!hit||e.button!==0)return;
-   if(hit.__cbPointerId!==undefined && hit.__cbPointerId!==e.pointerId)return;
-   const dx=e.clientX-(hit.__cbStartX??e.clientX), dy=e.clientY-(hit.__cbStartY??e.clientY);
-   if(Math.hypot(dx,dy)>8)return; // drag is handled by drop, not by click
-   const seat=hit.closest('.seat'); const pid=Number(seat?.id?.replace('seat',''));
-   const i=Number(hit.dataset.handIndex);
-   if(!Number.isInteger(pid)||!Number.isInteger(i))return;
-   e.preventDefault(); e.stopPropagation();
-   handAction(e,i,pid);
- },true);
- document.addEventListener('keydown',e=>{
-   const hit=e.target.closest?.('.seat-hand .hand-card-hit[data-hand-index]');
-   if(!hit||(e.key!=='Enter'&&e.key!==' '))return;
-   const pid=Number(hit.closest('.seat')?.id?.replace('seat','')); const i=Number(hit.dataset.handIndex);
-   if(!Number.isInteger(pid)||!Number.isInteger(i))return;
-   e.preventDefault();e.stopPropagation();handAction(e,i,pid);
- },true);
-}
-
-function playHandCard(playerId,i){
- const pl=state.players[Number(playerId)-1];
- const n=Number(i);
- if(!pl||!Number.isInteger(n)||n<0||n>=pl.hand.length)return;
- if(pl.id!==state.active||state.priority!==pl.id){log(`Cannot play ${pl.hand[n]?.name||'card'}: ${pl.name} does not currently have priority.`);return}
- const c=pl.hand[n];
- if(!c)return;
- if(isLandCard(c)){
-   if(!canLand(pl)){log('A land can only be played during a main phase when a land play is available.');return}
-   playCardForPlayer(pl,n);return;
- }
- if(!canAutoPay(pl,c.manaCost)){log(`${c.name} is not currently castable.`);return}
- playCardForPlayer(pl,n);
-}
-function playCardForPlayer(pl,i){
- if(!pl||pl.id!==state.active||state.priority!==pl.id)return false;
- return playCard(i,pl);
-}
-function playCard(i,owner){
- const pl=owner||p();if(!pl)return;const n=Number(i);if(!Number.isInteger(n)||n<0||n>=pl.hand.length)return;if(pl.id!==state.active||state.priority!==pl.id){log('Only the active player with priority can play a card.');return}const c=pl.hand[n];if(!c)return;const landFace=c.faces?.find(f=>/\bLand\b/i.test(f?.type_line||f?.type||''))||[c.frontFace,c.backFace].find(f=>/\bLand\b/i.test(f?.type_line||f?.type||''));if(landFace){c.isLand=true;c.type=landFace.type_line||landFace.type||c.type;c.oracle=landFace.oracle_text||c.oracle;}if(isLandCard(c))c.isLand=true;if(!c.type&&!c.isLand&&!c.faces?.length){log(`${c.name} has no card data and cannot be played.`);return}if(isLandCard(c)){c.isLand=true;if(!canLand(pl)){log('A land can only be played during a main phase when a land play is available.');return}pl.hand.splice(i,1);const played={...c,faces:Array.isArray(c.faces)?c.faces.map(f=>({...f})):[],frontFace:c.frontFace,backFace:c.backFace,img:c.img,artCrop:c.artCrop,tapped:false,summoningSick:false};pl.battlefield.push(played);pl.landPlayed++;if(hasExtraLandfall(pl)){pl.landPlayBonus++;pl.landPlays++;log(`${pl.name}: landfall granted an additional land play this turn.`)}playerAction();log(`${pl.name} played ${c.name}. Land plays do not use the stack.`);render();return}if(!canAutoPay(pl,c.manaCost)){log(`${c.name} is not currently castable — cannot pay ${c.manaCost||'its mana cost'}.`);return}
-const costLabel=c.manaCost||'no mana';
-if(c.manaCost&&String(c.manaCost).trim()&&!window.confirm(`Cast ${c.name} for ${costLabel}? Mana sources may be tapped to pay.`))return;
-if(!autoPayFromManaSources(pl,c.manaCost)){log(`Cannot pay ${c.manaCost||'the mana cost'}.`);return}
-if(!payMana(pl,c.manaCost)){log(`Cannot pay ${c.manaCost||'the mana cost'}.`);return}pl.hand.splice(i,1);state.stack.push({label:`${c.name} — cast by ${pl.name}`,type:'cast',player:pl.id,card:c});state.priority=pl.id;playerAction();log(`${pl.name} cast ${c.name}.`);openReaction(`${c.name} is on the stack.`);render()}
-function manaFromOracle(c){const o=c.oracle||'';const m=o.match(/add\s+((?:\{[WUBRGC]\})+)/i);if(m){return (m[1].match(/\{[WUBRGC]\}/g)||[]).map(x=>x.slice(1,-1))}if(/add\s+two\s+mana/i.test(o))return ['C','C'];return ['C']}
-function activateMana(i){const pl=p();if(pl.id!==state.active||state.priority!==pl.id)return;const c=pl.battlefield[i];if(!c||c.tapped||!manaAbility(c)){return}const add=manaFromOracle(c);add.forEach(x=>{if(x==='C')pl.mana.C++;else if(x in pl.mana)pl.mana[x]++});c.tapped=true;playerAction();log(`${pl.name} activated ${c.name}'s mana ability. (${add.join(',')})`);render()}
-function moveZoneCard(id,zone,index,target){
- const pl=p(id);if(!pl||!pl[zone]||!pl[zone][index])return;
- const c=pl[zone].splice(index,1)[0];
- if(target==='hand')pl.hand.push(c);
- else if(target==='battlefield')pl.battlefield.push({...c,tapped:false,summoningSick:false});
- else if(target==='graveyard')pl.graveyard.push(c);
- else if(target==='exile')pl.exile.push(c);
- else if(target==='libraryTop')pl.library.unshift(c);
- else if(target==='libraryBottom')pl.library.push(c);
- else {pl[zone].splice(index,0,c);return}
- playerAction();log(`${pl.name}: ${c.name} moved from ${zone} to ${target}.`);closeZone();render();
-}
-function openZone(id,zone){
- const pl=p(id);if(!pl)return;
- const title=zone==='commandZone'?'Command Zone':zone[0].toUpperCase()+zone.slice(1),cards=pl[zone]||[];
- let body='';
- if(zone==='library'){
-  body=`<div class="zone-note">Library is face-down. You can draw the top card or shuffle.</div><div class="zone-actions"><button onclick="drawCards(p(${pl.id}),1);closeZone();render()">Draw top card</button><button onclick="p(${pl.id}).library.sort(()=>Math.random()-.5);closeZone();render()">Shuffle library</button></div>`;
-  body+=cards.map((c,i)=>`<div class="zone-card-back"><img class="card" src="${back()}"><button onclick="moveZoneCard(${pl.id},'library',${i},'hand')">Move to hand</button></div>`).join('');
- }else{
-  body=cards.map((c,i)=>`<div class="zone-card"><img class="card" src="${cardImg(c)}" title="${esc(c.name)}" onerror="this.onerror=null;this.src=back()"><div class="zone-actions"><button onclick="moveZoneCard(${pl.id},'${zone}',${i},'hand')">Hand</button><button onclick="moveZoneCard(${pl.id},'${zone}',${i},'battlefield')">Battlefield</button>${zone!=='graveyard'?`<button onclick="moveZoneCard(${pl.id},'${zone}',${i},'graveyard')">Graveyard</button>`:''}${zone!=='exile'?`<button onclick="moveZoneCard(${pl.id},'${zone}',${i},'exile')">Exile</button>`:''}</div></div>`).join('')||'<div class="empty">Empty</div>';
- }
- document.querySelector('#zoneModal').innerHTML=`<div class="zone-modal"><button class="zone-close" onclick="closeZone()">Close</button><h2>${esc(pl.name)} — ${title}</h2><div class="zone-grid">${body}</div></div>`;
-}
-function closeZone(){document.querySelector('#zoneModal').innerHTML=''}
-
-function toggleAttacker(i){const pl=p();if(state.phaseIndex!==5||pl.id!==state.active)return;const c=pl.battlefield[i];if(!c||!c.isCreature||c.tapped||c.summoningSick)return;const n=pl.attackers.indexOf(i);if(n>=0)pl.attackers.splice(n,1);else pl.attackers.push(i);render()}
-function mandatoryAttackers(pl){return pl.battlefield.map((c,i)=>({c,i})).filter(x=>x.c.isCreature&&!x.c.tapped&&!x.c.summoningSick&&/\bgoad(ed)?\b|must attack/i.test(x.c.oracle||''))}
-function confirmAttackers(){playerAction();const pl=p();if(state.phaseIndex!==5)return;const mandatory=mandatoryAttackers(pl);const chosen=new Set(pl.attackers);for(const x of mandatory){if(!chosen.has(x.i)){log(`Illegal attack declaration: ${x.c.name} has a mandatory attack requirement.`);return}}if(!pl.attackers.length){log('Declare at least one attacker or confirm an empty attack.');}const defenders=seatedPlayers().filter(x=>x.id!==pl.id);for(const i of pl.attackers){if(!pl.attackTargets[i]&&defenders.length===1)pl.attackTargets[i]=defenders[0].id;if(!pl.attackTargets[i]){log('Each attacker needs a defending player selected.');return}const c=pl.battlefield[i];if(c)c.tapped=true}log(`${pl.name} declared ${pl.attackers.length} attacker(s).`);
- if(!defenders.length){state.phaseIndex=8;state.priority=state.active;startStep();return}
- state.phaseIndex=6;state.priority=state.active;startStep()}
-function legalBlockers(defender, attackerCard){return defender.battlefield.map((c,i)=>({c,i})).filter(x=>x.c.isCreature&&!x.c.tapped&&!x.c.summoningSick&&!/can't block/i.test(x.c.oracle||'')&&(attackerCard.keywords?.includes('Flying')? (x.c.keywords?.includes('Flying')||x.c.keywords?.includes('Reach')):true))}
-function toggleBlocker(defId, bi, attackerIndex){
- if(state.phaseIndex!==6)return;
- const def=p(defId),atk=p(),a=atk.battlefield[attackerIndex],b=def.battlefield[bi];
- if(!a||!b||!def.seated||def.id===atk.id)return;
- const legal=legalBlockers(def,a).some(x=>x.i===bi);if(!legal){log(`${b.name} cannot block ${a.name}.`);return}
- const arr=def.blockers[attackerIndex]||[];const pos=arr.indexOf(bi);
- if(pos>=0){arr.splice(pos,1);def.blockers[attackerIndex]=arr;render();return}
- for(const [ai,ids] of Object.entries(def.blockers)){if(Number(ai)!==attackerIndex&&ids.includes(bi)){log(`${b.name} is already blocking another attacker.`);return}}
- arr.push(bi);def.blockers[attackerIndex]=arr;render()
-}
-function confirmBlockers(defId){if(state.phaseIndex!==6)return;const def=p(defId||state.priority);if(!def||def.id===state.active||!def.seated)return;def.blockConfirmed=true;log(`${def.name} confirmed blockers.`);const defenders=seatedPlayers().filter(x=>x.id!==state.active);if(defenders.every(x=>x.blockConfirmed)){log('All defending players confirmed blockers.');state.priority=state.active;state.phaseIndex=7;startStep()}else{state.priority=state.active}render()}
-function creatureDamage(targetCard, sourceCard, dmg, controller, label='combat damage'){
- if(!targetCard||dmg<=0)return;
- targetCard.damageMarked=(targetCard.damageMarked||0)+dmg;
- if(sourceCard.keywords?.includes('Deathtouch'))targetCard._dies=true;
- if(targetCard.damageMarked>=(targetCard.toughness||0))targetCard._dies=true;
-}
-function resolveCombatDamage(firstStrike=false){
- const atk=p();
- for(const ai of atk.attackers){
-  const a=atk.battlefield[ai]; if(!a) continue;
-  const hasFS=a.keywords?.some(k=>/first strike/i.test(k))||/first strike/i.test(a.oracle||'');
-  const hasDS=a.keywords?.some(k=>/double strike/i.test(k))||/double strike/i.test(a.oracle||'');
-  if(firstStrike&&!hasFS&&!hasDS)continue;
-  if(!firstStrike&&hasFS&&!hasDS)continue;
-  const target=p(atk.attackTargets[ai]); if(!target)continue;
-  const blocks=target.blockers[ai]||[];
-  let remaining=Math.max(0,a.power||0);
-  if(blocks.length){
-   // Attacker assigns damage to blockers in the order the blockers were declared.
-   for(const bi of blocks){
-    const b=target.battlefield[bi]; if(!b)continue;
-    const lethal=b.damageMarked>=((b.toughness||0))?0:(b.toughness||0)-(b.damageMarked||0);
-    const dmg=a.keywords?.includes('Deathtouch')?Math.min(1,remaining):Math.min(Math.max(0,lethal),remaining);
-    creatureDamage(b,a,dmg,atk.id);
-    remaining-=dmg;
-    if(remaining<=0)break;
-   }
-   if(a.keywords?.some(k=>/trample/i.test(k))&&remaining>0)dealCombatToPlayer(a,target,remaining);
-  }else{
-   dealCombatToPlayer(a,target,remaining);
+async function fetchCardsForDeck(names,meta={}){
+  const unique=[...new Set(names)], by={};
+  for(let i=0;i<unique.length;i+=75){
+    const chunk=unique.slice(i,i+75);
+    try{
+      const r=await fetch('https://api.scryfall.com/cards/collection',{
+        method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
+        body:JSON.stringify({identifiers:chunk.map(name=>{
+          const m=meta[name.toLowerCase()];
+          return m?.set&&m?.collectorNumber?{set:m.set.toLowerCase(),collector_number:String(m.collectorNumber)}:{name};
+        })})
+      });
+      if(!r.ok)throw Error('Scryfall '+r.status);
+      const d=await r.json();
+      for(const raw of d.data||[]){
+        let c=normalizedCard(raw);
+        const wanted=chunk.find(n=>n.toLowerCase()===String(raw.name||'').toLowerCase());
+        if(wanted&&String(wanted).includes('//')&&(!c.faces||c.faces.length<2)){
+          const full=await fetchNamedFullCard(wanted); if(full)c=full;
+        }
+        by[(wanted||raw.name).toLowerCase()]=c;
+        by[String(raw.name).toLowerCase()]=c;
+      }
+    }catch{
+      for(const name of chunk){
+        let c=null;
+        const m=meta[name.toLowerCase()];
+        try{
+          if(m?.set&&m?.collectorNumber){
+            const r=await fetch(`https://api.scryfall.com/cards/${encodeURIComponent(m.set.toLowerCase())}/${encodeURIComponent(String(m.collectorNumber))}`);
+            if(r.ok)c=normalizedCard(await r.json());
+          }
+        }catch{}
+        if(!c)c=await fetchNamedFullCard(name);
+        if(c)by[name.toLowerCase()]=c;
+      }
+    }
   }
-  // Every blocker that can deal combat damage deals it back to its attacker.
-  for(const bi of blocks){
-   const b=target.battlefield[bi];
-   if(!b)continue;
-   const blockerHasFS=b.keywords?.some(k=>/first strike/i.test(k))||/first strike/i.test(b.oracle||'');
-   const blockerHasDS=b.keywords?.some(k=>/double strike/i.test(k))||/double strike/i.test(b.oracle||'');
-   if(firstStrike!== (blockerHasFS||blockerHasDS))continue;
-   const dmg=Math.max(0,b.power||0);
-   creatureDamage(a,b,dmg,target.id);
-  }
- }
- if(!firstStrike){
-  for(const pl of state.players){
-   pl.battlefield=pl.battlefield.filter(c=>{
-    if(c._dies){log(`${c.name} was destroyed by combat damage.`);pl.graveyard.push(c);delete c._dies;return false}
-    return true
-   })
-  }
-  atk.attackers=[];atk.attackTargets={};state.players.forEach(x=>{x.blockers={};x.blockConfirmed=false});checkStateBasedActions();
- }
-}
-function chooseAttackTarget(attackerIndex,targetId){const atk=p();if(state.phaseIndex!==5||!atk.attackers.includes(attackerIndex))return;const target=p(targetId);if(!target?.seated||target.id===atk.id)return;atk.attackTargets[attackerIndex]=target.id;render()}
-function checkStateBasedActions(){for(const pl of state.players){if(pl.life<=0)lose(pl,'life total 0 or less');if(pl.poison>=10)lose(pl,'10 or more poison counters')}}
-function lose(pl,reason){if(!pl.seated)return;pl.seated=false;log(`${pl.name} loses the game (${reason}). Their seat is skipped.`);if(state.active===pl.id){state.active=nextSeated(pl.id);state.priority=state.active}}
-function cleanup(pl){
- const maxHand=7;
- if(pl.hand.length>maxHand){
-  const excess=pl.hand.length-maxHand;
-  // Automated cleanup chooses the oldest cards only when a real discard choice has not been implemented yet.
-  // The gameplay state remains rules-correct: exactly maxHand cards stay in hand.
-  const discarded=pl.hand.splice(maxHand,excess);
-  pl.graveyard.push(...discarded);
-  log(`${pl.name}: discarded ${discarded.length} card(s) to maximum hand size.`);
- }
- pl.battlefield.forEach(c=>{if(c.damageMarked)c.damageMarked=0});
- log(`${pl.name}: cleanup — damage removed and temporary turn effects end.`);
-}
-function openReaction(reason){state.reaction=reason;document.querySelector('#reaction').innerHTML=`<div class="reaction"><h2>Priority / Reaction</h2><div class="sub">${esc(reason)}</div><div class="small">Players receive priority in turn order. Auto-pass never checks mana alone; it checks whether a legal interaction exists.</div><div class="actions" style="margin-top:10px"><button onclick="passPriority()">Pass Priority</button><button onclick="resolveTop()">Resolve top object</button><button onclick="closeReaction()">Close</button></div></div>`}
-function closeReaction(){document.querySelector('#reaction').innerHTML='';state.reaction=null;render()}
-function extractMoxfieldId(input){
- try{
-  const u=new URL(input.trim());
-  const m=u.pathname.match(/\/decks\/([A-Za-z0-9_-]+)/i);
-  return m?m[1]:null;
- }catch(e){return input.trim().match(/^[A-Za-z0-9_-]{8,}$/)?.[0]||null}
-}
-function boardEntries(board){
- if(!board)return [];
- const cards=board.cards??board;
- if(Array.isArray(cards))return cards;
- if(cards&&typeof cards==='object')return Object.entries(cards).map(([key,value])=>{
-  if(value&&typeof value==='object')return {...value, name:value.name||value.card?.name||key};
-  return {name:key,quantity:Number(value)||1};
- });
- return [];
+  return names.map(n=>by[n.toLowerCase()]||{name:n,img:''});
 }
 function moxCardName(entry){
- const c=entry?.card||entry;
- const faces=Array.isArray(c?.card_faces)?c.card_faces:(Array.isArray(entry?.card_faces)?entry.card_faces:[]);
- if(faces.length>1){
-  const names=faces.map(f=>f?.name).filter(Boolean);
-  if(names.length>1)return names.join(' // ');
- }
- return c?.name||entry?.name||entry?.cardName||entry?.details?.name||entry?.card?.oracleId?.name||'';
+  const c=entry?.card||entry;
+  const faces=Array.isArray(c?.card_faces)?c.card_faces:[];
+  return c?.name||faces[0]?.name||entry?.name||'';
 }
 function moxQty(entry){
- const n=Number(entry?.quantity??entry?.qty??entry?.count??1);return Number.isFinite(n)&&n>0?Math.floor(n):1;
+  const n=Number(entry?.quantity??entry?.qty??entry?.count??1);
+  return Number.isFinite(n)&&n>0?Math.floor(n):1;
+}
+function extractMoxfieldId(input){
+  try{
+    const u=new URL(input.trim());
+    const m=u.pathname.match(/\/decks\/([A-Za-z0-9_-]+)/i);
+    return m?m[1]:null;
+  }catch{return input.trim()||null}
 }
 function usableDeckLists(lists){
- if(!lists)return false;
- const total=(lists.main?.length||0)+(lists.commanders?.length||0);
- if(total<2)return false;
- const bad=new Set(['main deck','mainboard','sideboard','commander','deck','card name']);
- const sample=[...(lists.main||[]),...(lists.commanders||[])].slice(0,12);
- if(sample.length && sample.every(n=>bad.has(String(n).toLowerCase())))return false;
- return true;
-}
-async function fetchMoxfieldDeck(id){
- const direct=[
-  `https://api2.moxfield.com/v3/decks/all/${encodeURIComponent(id)}`,
-  `https://api2.moxfield.com/v2/decks/all/${encodeURIComponent(id)}`,
-  `https://api.moxfield.com/v2/decks/all/${encodeURIComponent(id)}`,
-  `https://api2.moxfield.com/v2/decks/all/${encodeURIComponent(id)}/export`
- ];
- // Moxfield has tightened browser/API access. Use a reader proxy as a second path
- // so a normal public deck URL can still be imported when direct CORS/Cloudflare blocks it.
- const reader=[
-  `https://r.jina.ai/https://api2.moxfield.com/v3/decks/all/${encodeURIComponent(id)}`,
-  `https://r.jina.ai/https://api2.moxfield.com/v2/decks/all/${encodeURIComponent(id)}`,
-  `https://r.jina.ai/https://api2.moxfield.com/v2/decks/all/${encodeURIComponent(id)}/export`,
-  `https://r.jina.ai/https://moxfield.com/decks/${encodeURIComponent(id)}`
- ];
- const proxy=(u)=>[
-  `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-  `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-  `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
- ];
- const urls=[...direct,...reader,...direct.flatMap(proxy)];
- let last='Moxfield request failed';
- async function one(url){
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),8000);
-  try{
-   const r=await fetch(url,{method:'GET',headers:{'Accept':'application/json,text/plain,*/*','Cache-Control':'no-cache'},credentials:'omit',signal:controller.signal});
-   if(!r.ok)throw new Error(`HTTP ${r.status}`);
-   const text=await r.text();
-   if(!text.trim())throw new Error('Empty response');
-   let d=null;try{d=JSON.parse(text)}catch{}
-   if(d&&(d.boards||d.mainboard||d.commanders||d.publicId||d.data?.boards)){
-    return d.data?.boards ? {...d.data,name:d.data.name||'Moxfield deck'} : d;
-   }
-   const lists=parseDeckText(text);
-   if(usableDeckLists(lists))return {name:'Moxfield deck',__lists:lists};
-   // Jina may wrap JSON in markdown; recover the first JSON object if present.
-   const match=text.match(/\{[\s\S]*\}/);
-   if(match){try{
-    const j=JSON.parse(match[0]);
-    if(j&&(j.boards||j.mainboard||j.commanders||j.publicId||j.data?.boards))
-      return j.data?.boards ? {...j.data,name:j.data.name||'Moxfield deck'} : j;
-   }catch{}}
-   throw new Error('Response was not a usable public deck');
-  }finally{clearTimeout(timer)}
- }
- try{
-  return await Promise.any(urls.map(async url=>{try{return await one(url)}catch(e){last=e?.name==='AbortError'?'Request timed out':(e?.message||'Network/CORS error');throw e}}));
- }catch(e){
-  throw new Error(`${last}. Direct Moxfield access is blocked; the importer also tried alternate public readers/proxies.`);
- }
-}
-function moxImage(entry){
- const c=entry?.card||entry;
- const u=c?.image_uris||c?.imageUris||c?.images||entry?.image_uris||entry?.imageUris||{};
- return u.normal||u.large||u.small||c?.image||entry?.image||'';
-}
-function moxMeta(entry){
- const c=entry?.card||entry;
- const printing=c?.printing||entry?.printing||c?.edition||entry?.edition||{};
- const faces=Array.isArray(c?.card_faces)?c.card_faces:(Array.isArray(entry?.card_faces)?entry.card_faces:[]);
- const landFace=faces.find(f=>/\bLand\b/i.test(f?.type_line||''));
- return {
-  name:moxCardName(entry),
-  img:moxImage(entry),
-  artCrop:c?.image_uris?.art_crop||c?.art_crop||faces[0]?.image_uris?.art_crop||'',
-  type:landFace?.type_line||c?.type_line||c?.typeLine||entry?.type_line||'',
-  oracle:landFace?.oracle_text||c?.oracle_text||c?.oracleText||entry?.oracle_text||'',
-  manaCost:c?.mana_cost||c?.manaCost||entry?.mana_cost||'',
-  colors:c?.colors||[],cmc:c?.cmc||0,
-  scryfallId:c?.scryfall_id||c?.scryfallId||'',
-  set:c?.set||c?.setCode||printing?.set||printing?.code||'',
-  collectorNumber:c?.collector_number||c?.collectorNumber||printing?.collector_number||printing?.collectorNumber||printing?.number||'',
-  faces
- };
-}
-function extractDeckNames(deck){
- const boards=deck?.boards||deck;
- const commanderBoard=boards?.commanders||boards?.commander||deck?.commanders;
- const mainBoard=boards?.mainboard||boards?.main||boards?.maindeck||deck?.mainboard;
- const sideBoard=boards?.sideboard||deck?.sideboard;
- const commanders=[],main=[],side=[],meta={};
- const add=(arr,e)=>{const n=moxCardName(e);if(!n)return;const q=moxQty(e);if(!meta[n.toLowerCase()])meta[n.toLowerCase()]=moxMeta(e);for(let i=0;i<q;i++)arr.push(n)};
- boardEntries(commanderBoard).forEach(e=>add(commanders,e));
- boardEntries(mainBoard).forEach(e=>add(main,e));
- boardEntries(sideBoard).forEach(e=>add(side,e));
- if(!main.length&&Array.isArray(deck?.cards))deck.cards.forEach(e=>add(main,e));
- return {commanders,main,side,meta};
+  const total=(lists.main?.length||0)+(lists.commanders?.length||0);
+  return total>=2;
 }
 function parseDeckText(text){
  const commanders=[],main=[],side=[];let section='main';const meta={};
@@ -747,115 +422,841 @@ function parseDeckText(text){
  }
  return {commanders,main,side,meta};
 }
-async function hydrateCardFaces(raw,obj){
- const layout=String(raw?.layout||'').toLowerCase();
- const likelyDfc=['transform','modal_dfc','double_faced_token','meld','reversible_card'].includes(layout);
- if(!likelyDfc && obj?.faces?.length>1)return obj;
- if(obj?.faces?.length>1 && obj.faces[1]?.image_uris)return obj;
- const id=raw?.id;
- if(!id)return obj;
+async function fetchWithTimeout(url,ms=10000){
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),ms);
  try{
-  const rr=await fetch(`https://api.scryfall.com/cards/${encodeURIComponent(id)}`,{headers:{'Accept':'application/json'}});
-  if(rr.ok){const full=await rr.json();return normalizedCard(full)}
- }catch{}
- return obj;
+  // IMPORTANT: no custom headers here. Custom headers force a CORS
+  // preflight on several public proxies and were the source of the
+  // "No Access-Control-Allow-Origin" failures we saw earlier.
+  return await fetch(url,{signal:controller.signal,cache:'no-store'});
+ }finally{clearTimeout(timer)}
 }
-async function fetchNamedFullCard(name){try{const rr=await fetch('https://api.scryfall.com/cards/named?exact='+encodeURIComponent(name),{headers:{'Accept':'application/json'}});if(!rr.ok)return null;return normalizedCard(await rr.json())}catch{return null}}
-async function fetchCardsForDeck(names,meta={}){
- const unique=[...new Set(names)],outByName={},out=[];let failed=0;
- for(let i=0;i<unique.length;i+=75){
-  const chunk=unique.slice(i,i+75);
+
+async function fetchMoxfieldDeck(id){
+ // Moxfield's public deck JSON is available from the v3 endpoint (with v2
+ // as a fallback). A normal browser page cannot always call Moxfield
+ // directly because of CORS/edge restrictions, so try a few read-only
+ // public gateways. We never send credentials or modify the Moxfield deck.
+ const endpoints=[
+  `https://api2.moxfield.com/v3/decks/all/${encodeURIComponent(id)}`,
+  `https://api2.moxfield.com/v2/decks/all/${encodeURIComponent(id)}`,
+  `https://api.moxfield.com/v2/decks/all/${encodeURIComponent(id)}`
+ ];
+ const targets=[];
+ for(const target of endpoints){
+  targets.push(target);
+  targets.push(`https://r.jina.ai/${target}`);
+  targets.push(`https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`);
+  targets.push(`https://corsproxy.io/?url=${encodeURIComponent(target)}`);
+ }
+ let last=null;
+
+ for(const url of targets){
   try{
-   const ac=new AbortController();const to=setTimeout(()=>ac.abort(),10000);const r=await fetch('https://api.scryfall.com/cards/collection',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({identifiers:chunk.map(name=>{const m=meta[name.toLowerCase()];return m?.set&&m?.collectorNumber?{set:m.set.toLowerCase(),collector_number:String(m.collectorNumber)}:{name}})}),signal:ac.signal});clearTimeout(to);
-   if(!r.ok)throw new Error('Scryfall '+r.status);
-   const d=await r.json();for(const raw of (d.data||[])){let obj=await hydrateCardFaces(raw,normalizedCard(raw));const wanted=chunk.find(n=>n.toLowerCase()===String(raw.name||'').toLowerCase());const mm=wanted?meta[wanted.toLowerCase()]:null;if((String(wanted||'').includes('//')||raw.layout==='transform'||raw.layout==='modal_dfc')&&(!obj.faces||obj.faces.length<2)&&mm?.set&&mm?.collectorNumber){try{const rr=await fetch(`https://api.scryfall.com/cards/${encodeURIComponent(mm.set.toLowerCase())}/${encodeURIComponent(String(mm.collectorNumber))}`);if(rr.ok)obj=normalizedCard(await rr.json())}catch{}}if(wanted&&String(wanted).includes('//')&&(!obj.faces||obj.faces.length<2)){const full=await fetchNamedFullCard(wanted);if(full?.faces?.length>1)obj=full;}outByName[raw.name.toLowerCase()]=obj;if(wanted)outByName[wanted.toLowerCase()]=obj;cache[raw.name]=obj;}
-  }catch(e){for(const name of chunk){
-    const m=meta[name.toLowerCase()];let c=null;
+   setStatus('Trying Moxfield import…');
+   const r=await fetchWithTimeout(url,12000);
+   if(!r.ok)throw Error(`HTTP ${r.status}`);
+   const text=await r.text();
+   if(!text.trim())throw Error('Empty response');
+
+   // Some gateways return the JSON directly, while Jina may wrap it in
+   // text. First try the complete response, then extract the JSON object.
+   const candidates=[text];
+   const first=text.indexOf('{'), lastBrace=text.lastIndexOf('}');
+   if(first>=0 && lastBrace>first)candidates.push(text.slice(first,lastBrace+1));
+
+   for(const candidate of candidates){
+    // Direct API response.
     try{
-      if(m?.set&&m?.collectorNumber){
-        const rr=await fetch(`https://api.scryfall.com/cards/${encodeURIComponent(m.set.toLowerCase())}/${encodeURIComponent(String(m.collectorNumber))}`);
-        if(rr.ok){const raw=await rr.json();c=normalizedCard(raw);}
-      }
+     const d=JSON.parse(candidate);
+     const deck=d?.data?.boards ? {...d.data,name:d.data.name||'Moxfield deck'} : d;
+     const extracted=extractDeckNames(deck);
+     if(usableDeckLists(extracted))return deck;
     }catch{}
-    if(!c)c=await card(name);outByName[name.toLowerCase()]=c
-  }}
+
+    // A few export/proxy responses are plain decklist text.
+    const lists=parseDeckText(candidate);
+    if(usableDeckLists(lists))return {name:'Moxfield deck',__lists:lists};
+   }
+
+   throw Error('Response did not contain a readable decklist');
+  }catch(e){
+   last=e?.name==='AbortError' ? Error('Timed out') : e;
+  }
  }
- for(const name of names){
-  let c=outByName[name.toLowerCase()]||cache[name];
-  const m=meta[name.toLowerCase()];
-  if(String(name).includes('//') && (!c?.faces || c.faces.length<2)){const full=await fetchNamedFullCard(name);if(full&&full.faces?.length>1)c=full;}
-  if(m && (!c || (!c.img&&!c.type&&!c.oracle))){
-   c={name:m.name||name,type:m.type||'',oracle:m.oracle||'',displayOracle:m.oracle||'',img:m.img||'',colors:m.colors||[],cmc:m.cmc||0,manaCost:m.manaCost||'',power:null,toughness:null,subtypes:[],artCrop:m.artCrop||m.faces?.[0]?.image_uris?.art_crop||'',isLand:/\bLand\b/i.test(m.type||'')||m.faces?.some(f=>/\bLand\b/i.test(f?.type_line||'')),isCreature:/\bCreature\b/i.test(m.type||''),isInstant:/\bInstant\b/i.test(m.type||''),isSorcery:/\bSorcery\b/i.test(m.type||''),hasHaste:/\bhaste\b/i.test(m.oracle||''),keywords:[],faces:m.faces||[],frontFace:m.faces?.[0]||null,backFace:m.faces?.[1]||null,isCommander:false};
-  } else if(c && m){if(!c.img&&m.img)c.img=m.img;if(!c.artCrop&&m.artCrop)c.artCrop=m.artCrop;if((!c.faces||c.faces.length<2)&&m.faces?.length>1){c.faces=m.faces;c.frontFace=m.faces[0];c.backFace=m.faces[1];c.img=cardImg(c);}}
-  if(!c||(!c.img&&!c.type&&!c.oracle))failed++;
-  out.push(c||{name});
- }
- return {cards:out,failed};
+
+ throw Error(
+  'Moxfield could not be read automatically. '+
+  'Make sure the deck is Public, or use Moxfield → Export → copy the decklist and paste it below.'
+ );
 }
-async function loadImportedDeck(lists,title='',fromSetup=false){
- if(!lists.main.length&&!lists.commanders.length)throw new Error('No commander/mainboard cards found.');
- const all=[...lists.commanders,...lists.main],loaded=await fetchCardsForDeck(all,lists.meta||{}),pl=p(1);
- pl.library=[];pl.hand=[];pl.battlefield=[];pl.graveyard=[];pl.exile=[];pl.mana=emptyMana();pl.landPlayed=0;pl.landPlays=1;pl.landPlayBonus=0;pl.commandZone=[];
- loaded.cards.forEach((c,i)=>{if(i<lists.commanders.length)pl.commandZone.push({...c,isCommander:true});else pl.library.push({...c})});
- pl.library.sort(()=>Math.random()-.5);pl.hand=pl.library.splice(0,7);state.openingMulligan=true;state.active=1;state.priority=1;state.phaseIndex=0;state.turn=1;state.stack=[];resetTurnTimer();
- const loading=document.querySelector('#loading');loading.textContent=`Loaded${title?` ${title}`:''}`;setTimeout(()=>loading.style.display='none',1800);
- state.deckTitle=title||'Commander deck';
- log(`Deck imported${title?` — ${title}`:''}. Commander: ${pl.commandZone.length}. Main deck: ${pl.library.length+pl.hand.length}. ${loaded.failed?loaded.failed+' card(s) failed to load from Scryfall.':'Scryfall data loaded.'}`);render();
- if(fromSetup)showOpeningHand();
+
+function extractDeckNames(deck){
+  if(deck?.__lists)return deck.__lists;
+  const boards=deck?.boards||deck;
+  const commanders=[],main=[],side=[],meta={};
+
+  function add(arr,e,keyHint=''){
+    const n=moxCardName(e)||keyHint;
+    if(!n)return;
+    const q=moxQty(e);
+    const c=e?.card||e;
+    const p=c?.printing||e?.printing||{};
+    const set=c?.set||p?.set||p?.code||'';
+    const collector=c?.collector_number||c?.collectorNumber||p?.collector_number||p?.collectorNumber||'';
+    meta[n.toLowerCase()]={name:n,set,collectorNumber:collector};
+    for(let i=0;i<q;i++)arr.push(n);
+  }
+
+  function walk(board,target){
+    if(!board)return;
+
+    // Current Moxfield v3 shape:
+    // boards.<boardType>.cards = { cardId: { quantity, card: {...} } }
+    // Older responses may expose the cards directly as an object or array.
+    if(Array.isArray(board)){
+      for(const e of board)add(target,e);
+      return;
+    }
+
+    if(typeof board!=='object')return;
+
+    if(board.cards && typeof board.cards==='object'){
+      const cards=board.cards;
+      if(Array.isArray(cards)){
+        for(const e of cards)add(target,e);
+      }else{
+        for(const [key,e] of Object.entries(cards)){
+          if(e && typeof e==='object')add(target,e,key);
+        }
+      }
+      return;
+    }
+
+    // Legacy Moxfield response: the board itself is the card map.
+    for(const [key,e] of Object.entries(board)){
+      if(e && typeof e==='object')add(target,e,key);
+    }
+  }
+
+  walk(boards?.commanders||boards?.commander||deck?.commanders,commanders);
+  walk(boards?.mainboard||boards?.main||boards?.maindeck||deck?.mainboard,main);
+  walk(boards?.sideboard||deck?.sideboard,side);
+
+  return {commanders,main,side,meta};
 }
-async function importMoxfield(){
- const input=document.querySelector('#moxUrl')?.value||'',id=extractMoxfieldId(input);if(!id){log('Enter a valid public Moxfield deck URL.');return}
- const loading=document.querySelector('#loading');loading.textContent='Loading Moxfield deck…';loading.style.display='block';
- try{const deck=await fetchMoxfieldDeck(id);await loadImportedDeck(extractDeckNames(deck),deck?.name||'Moxfield deck')}catch(e){loading.textContent='Moxfield import failed';setTimeout(()=>loading.style.display='none',2200);log(`Moxfield import failed: ${e.message||e}. Paste the Moxfield export text as fallback.`);render()}
+
+
+function drawRandomHand(deck,count=7){
+  // Draw physical cards FROM the library, removing them from the library.
+  // Duplicate names remain possible only when the imported deck contains
+  // multiple physical copies.
+  shuffleInPlace(deck);
+  return deck.splice(0,Math.min(count,deck.length));
 }
-async function importDeckText(){
- const text=document.querySelector('#deckText')?.value||'',lists=parseDeckText(text);if(!lists.main.length&&!lists.commanders.length){log('Could not read a decklist. Paste Moxfield export text.');return}
- const loading=document.querySelector('#loading');loading.textContent='Loading decklist…';loading.style.display='block';
- try{await loadImportedDeck(lists,'Imported decklist')}catch(e){loading.textContent='Deck import failed';setTimeout(()=>loading.style.display='none',2200);log(`Deck import failed: ${e.message||e}`);render()}
+
+async function importLists(lists,title){
+  if(!lists.main.length&&!lists.commanders.length)throw Error('No cards found');
+
+  // For the simple Moxfield/text format used by this sandbox, the FIRST
+  // imported card is the commander when no explicit Commander section exists.
+  // Therefore a normal 100-card import becomes exactly 1 commander + 99 cards.
+  let commanderNames=[...lists.commanders];
+  let mainNames=[...lists.main];
+
+  if(!commanderNames.length && mainNames.length>=100){
+    commanderNames=[mainNames.shift()];
+  }
+
+  if(!commanderNames.length){
+    throw Error('Could not determine the commander. Put the commander first in the decklist.');
+  }
+
+  showLoading('Loading card images…');
+  const all=[...commanderNames,...mainNames];
+  const loaded=await fetchCardsForDeck(all,lists.meta||{});
+
+  // Recover any cards the collection endpoint missed before showing the opening hand.
+  await Promise.all(loaded.map(async c=>{
+    if(c?.img||c?.faces?.some(f=>f?.image_uris))return;
+    const full=await fetchNamedFullCard(c.name);
+    if(full)Object.assign(c,full);
+  }));
+
+  // state.cards is ONLY the 99-card library. The commander is never placed
+  // in this array and can therefore never be drawn into the opening hand.
+  state.commander=loaded[0]||null;
+  state.commanderInZone=!!state.commander;
+  state.cards=loaded.slice(1);
+
+  if(state.cards.length!==99){
+    throw Error(`Expected 99 cards in the library, found ${state.cards.length}.`);
+  }
+
+  // Draw real physical cards out of the library. This prevents the same
+  // seven cards from being repeatedly drawn without reducing the library.
+  state.handCards=drawRandomHand(state.cards,7);
+  state.deckTitle=title||'Imported deck';
+
+  // Start the opening-hand / mulligan sequence before gameplay begins.
+  state.mulliganCount=0;
+  state.mulliganOpen=true;
+  state.bottomCount=0;
+  state.bottomSelected=new Set();
+
+  render();
+  document.querySelector('#toolbar').classList.add('hidden');
+  document.querySelector('#deckBtn').classList.remove('hidden');
+  hideLoading();
+  setStatus(`Imported ${state.cards.length} cards${state.commander?' • Commander: '+state.commander.name:''}. Opening hand ready.`);
+  openMulligan();
 }
-function passTurn(){
- if(state.stack.length){log('The stack must be empty before passing the turn.');return}
- if(state.priority!==state.active){log('Priority must return to the active player before passing the turn.');return}
- // Passing the turn is a real turn transition: skip the rest of the current
- // turn, then choose the next seated player. Empty seats are never selected.
- const from=state.active;
- state.phaseIndex=0;
- const next=nextSeated(from);
- state.active=next;
- state.priority=state.active;
- state.turn++;
- resetTurnTimer();
- log(`${p(from).name} passed the turn. Active player: ${p().name}.`);
- startStep();
- render();
+async function importMox(){
+  const id=extractMoxfieldId(document.querySelector('#moxUrl').value);
+  if(!id){setStatus('Enter a public Moxfield deck URL.');return}
+  try{
+    setStatus('Importing Moxfield deck… (max 10 sec per source)');
+    const deck=await fetchMoxfieldDeck(id);
+    await importLists(extractDeckNames(deck),deck?.name||'Moxfield deck');
+  }catch(e){hideLoading();setStatus('Moxfield import failed: '+(e.message||e))}
 }
-async function importDeck(fromSetup=false){
- const pl=state.players[0];const loading=document.querySelector('#loading');loading.textContent='Loading Scryfall…';loading.style.display='block';
- pl.library=[];pl.hand=[];
- const results=await Promise.all(sample.map(n=>card(n)));
- const valid=results.filter(c=>c.img||c.type||c.oracle);
- pl.library.push(...results);
- while(pl.library.length<99)pl.library.push({...pl.library[pl.library.length%sample.length]});
- pl.library.sort(()=>Math.random()-.5);pl.hand=pl.library.splice(0,7);pl.commandZone=[{name:'Commander',type:'Legendary Creature',oracle:'',img:'',isCommander:true}];state.openingMulligan=true;
- const failed=results.filter(c=>!c.img).length;loading.textContent=failed?`Scryfall: ${failed} card(s) without image data`:'Scryfall loaded';setTimeout(()=>{loading.style.display='none'},1800);
- state.deckTitle='Sample Commander deck';state.mulligans=0;state.gameStarted=false;state.openingMulligan=true;
- log(`Sample Commander deck imported. 7-card opening hand drawn. ${failed?failed+' card(s) failed to load from Scryfall.':'Scryfall data loaded.'}`);render();if(fromSetup)showOpeningHand();else if(state.turn===1&&state.phaseIndex===0)startStep()
+async function importText(){
+  const lists=parseDeckText(document.querySelector('#deckText').value);
+  if(!lists.main.length&&!lists.commanders.length){setStatus('Could not read a decklist.');return}
+  try{await importLists(lists,'Imported decklist')}catch(e){hideLoading();setStatus('Import failed: '+e.message)}
 }
-function freeMulligan(){if(!state.openingMulligan)return;const pl=p(1);pl.library.push(...pl.hand);pl.hand=[];pl.library.sort(()=>Math.random()-.5);pl.hand=pl.library.splice(0,7);state.openingMulligan=false;log(`${pl.name} took the free mulligan and drew 7.`);render()}
-function shuffleLibrary(){p(1).library.sort(()=>Math.random()-.5);log('Library shuffled.');render()}
-function playerAction(){if(state.priority===state.active){const now=Date.now();state.timer.turnElapsed=Math.max(0,state.timer.turnElapsed+(state.timer.lastAction?((now-state.timer.lastAction)/1000):0));state.timer.lastAction=now;state.timer.remaining=45}updateTimerUI()}
-function resetTurnTimer(){const now=Date.now();state.timer.remaining=45;state.timer.lastAction=now;state.timer.turnElapsed=0;state.timer.startedAt=now;updateTimerUI()}
-function updateTimerUI(){const el=document.querySelector('#timer');if(!el)return;el.textContent=`${Math.max(0,state.timer.remaining).toFixed(1)}s`;el.classList.toggle('warn',state.timer.remaining<=10)}
-function autoTimeout(){const pl=p();if(!pl||!pl.seated)return;const now=Date.now();state.timer.turnElapsed=Math.max(state.timer.turnElapsed,(now-state.timer.startedAt)/1000);log(`${pl.name} timed out after 45 seconds of inactivity.`);state.timer.remaining=45;state.timer.lastAction=now;if(state.stack.length){state.priority=nextSeated(state.priority);autoPass();render();return}state.priority=state.active;advanceStep(true)}
-function timerIsActive(){
- if(!state.gameStarted||state.priority!==state.active)return false;
- if(state.phaseIndex===0||state.phaseIndex===2||state.phaseIndex===12)return false;
- if(state.phaseIndex===1&&!state.stack.length)return false;
- return true;
+
+
+function shuffleInPlace(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
 }
-function startTimerLoop(){if(state.timer.interval)clearInterval(state.timer.interval);state.timer.interval=setInterval(()=>{if(!hasSeat(state.active)||!timerIsActive()){updateTimerUI();return}const now=Date.now();const elapsed=(now-state.timer.lastAction)/1000;state.timer.remaining=Math.max(0,45-elapsed);updateTimerUI();if(state.timer.remaining<=0)autoTimeout()},100)}
-function drawCards(pl,n=1){for(let i=0;i<n;i++){if(!pl.library.length){lose(pl,'draw from an empty library');return false}pl.hand.push(pl.library.shift())}return true}
-function newGame(){document.body.classList.add('pre-game');state.players=[1,2,3,4].map(newPlayer);state.active=1;state.phaseIndex=0;state.turn=1;state.stack=[];state.priority=1;state.log=[];state.openingMulligan=true;state.mulligans=0;state.gameStarted=false;state.setupStage='deck';state.deckTitle='';resetTurnTimer();showSetupDeck();log('Game setup ready. Choose a deck, then keep your opening hand to begin.');try{render()}catch(e){console.error(e)}}
-newGame();
-startTimerLoop();
-</script></body></html>
+
+function openMulligan(){
+  state.mulliganOpen=true;
+  state.bottomCount=0;
+  state.bottomSelected=new Set();
+  document.querySelector('#mulliganOverlay').classList.add('open');
+  document.querySelector('#mulliganActions').style.display='flex';
+  document.querySelector('#mulliganBtn').style.display='';
+  document.querySelector('#keepHandBtn').textContent='Keep Hand';
+  renderMulligan();
+}
+
+function renderMulligan(){
+  const overlay=document.querySelector('#mulliganOverlay');
+  const cardsEl=document.querySelector('#mulliganCards');
+  const info=document.querySelector('#mulliganInfo');
+  const note=document.querySelector('#mulliganBottomNote');
+  const action=document.querySelector('#keepHandBtn');
+  const mullBtn=document.querySelector('#mulliganBtn');
+
+  if(!overlay||!cardsEl||!info||!note||!action)return;
+
+  overlay.classList.add('open');
+  cardsEl.replaceChildren();
+
+  const needsBottom=state.bottomCount>0;
+
+  if(needsBottom){
+    info.textContent=`Choose ${state.bottomCount} card${state.bottomCount===1?'':'s'} to put on the bottom.`;
+    note.textContent=`Selected ${state.bottomSelected.size} / ${state.bottomCount}`;
+  }else{
+    info.textContent=state.mulliganCount===0
+      ? 'Your opening hand — 7 cards.'
+      : `Mulligan ${state.mulliganCount} — choose whether to keep these 7 cards or mulligan again.`;
+    note.textContent='';
+  }
+
+  state.handCards.forEach((card,index)=>{
+    const el=document.createElement('div');
+    el.className='mulligan-card';
+    el.dataset.index=String(index);
+    el.title=card.name||'';
+    el._cardData=card;
+    cardsEl.appendChild(el);
+    putCardImage(el,card);
+
+    if(state.bottomSelected.has(index))el.classList.add('selected');
+
+    el.addEventListener('click',()=>{
+      if(state.bottomCount<=0)return;
+
+      if(state.bottomSelected.has(index)){
+        state.bottomSelected.delete(index);
+      }else if(state.bottomSelected.size<state.bottomCount){
+        state.bottomSelected.add(index);
+      }
+
+      renderMulligan();
+    });
+  });
+
+  if(needsBottom){
+    mullBtn.style.display='none';
+
+    const ready=state.bottomSelected.size===state.bottomCount;
+    action.disabled=!ready;
+    action.textContent=ready
+      ? 'Confirm & Start'
+      : `Select ${state.bottomCount} to Bottom`;
+    action.onclick=finishKeep;
+  }else{
+    mullBtn.style.display='';
+    action.disabled=false;
+    action.textContent='Keep Hand';
+    action.onclick=finishKeep;
+  }
+}
+function doMulligan(){
+  // The first mulligan is free. You may continue to mulligan as many times
+  // as you want; NO cards are bottomed during the mulligan sequence.
+  // Return the current seven to the library, shuffle, then physically draw
+  // seven new cards from that library.
+  state.cards.push(...state.handCards);
+  state.handCards=[];
+  shuffleInPlace(state.cards);
+  state.mulliganCount++;
+  state.handCards=drawRandomHand(state.cards,7);
+  state.bottomCount=0;
+  state.bottomSelected=new Set();
+  render();
+  renderMulligan();
+}
+
+function finishKeep(){
+  // First mulligan is free. After two mulligans, bottom 1; after three,
+  // bottom 2, etc. Never require more than six cards to be bottomed, so the
+  // player always has at least one card in the final hand.
+  if(state.bottomCount===0 && state.mulliganCount>=2){
+    state.bottomCount=Math.min(state.mulliganCount-1,6);
+    state.bottomSelected=new Set();
+    renderMulligan();
+    return;
+  }
+
+  if(state.bottomCount>0){
+    if(state.bottomSelected.size!==state.bottomCount)return;
+
+    // Remove the selected physical cards from the final hand and return them
+    // to the library.
+    const selected=[...state.bottomSelected].sort((a,b)=>b-a);
+    for(const i of selected){
+      const [card]=state.handCards.splice(i,1);
+      if(card)state.cards.push(card);
+    }
+    shuffleInPlace(state.cards);
+  }
+
+  state.mulliganOpen=false;
+  state.bottomCount=0;
+  state.bottomSelected=new Set();
+  document.querySelector('#mulliganOverlay').classList.remove('open');
+  document.querySelector('#mulliganBtn').style.display='';
+  document.querySelector('#keepHandBtn').disabled=false;
+  document.querySelector('#keepHandBtn').textContent='Keep Hand';
+  render();
+  setStatus(`Hand kept${state.mulliganCount?' after '+state.mulliganCount+' mulligan'+(state.mulliganCount===1?'':'s'):''}. Drag cards freely to the battlefield.`);
+}
+
+document.querySelector('#mulliganBtn').onclick=doMulligan;
+document.querySelector('#keepHandBtn').onclick=finishKeep;
+
+
+function renderZones(){
+  for(const player of [1,2,3,4]){
+    const root=document.querySelector('#zones'+player);
+    if(!root)continue;
+
+    const z=state.zones[player]||{graveyard:[],exile:[]};
+    root.replaceChildren();
+
+    const makeCardZone=(label,cls,card,title)=>{
+      const el=document.createElement('div');
+      el.className='zone '+cls;
+      el.title=title||label;
+      el._cardData=card||null;
+
+      const pile=document.createElement('div');
+      pile.className='zone-pile';
+      if(card){
+        putCardImage(pile,card);
+      }else{
+        const empty=document.createElement('div');
+        empty.className='zone-empty';
+        empty.textContent='Empty';
+        pile.appendChild(empty);
+      }
+
+      const n=document.createElement('div');
+      n.className='zone-count';
+      n.textContent=card?'1':'0';
+
+      const l=document.createElement('div');
+      l.className='zone-label';
+      l.textContent=label;
+
+      el.append(pile,n,l);
+      root.appendChild(el);
+      if(cls==='command' && player===1 && card){
+        attachCommandDrag(el,card,document.querySelector('#field1'));
+      }
+    };
+
+    const makeZone=(label,cls,count,img,title)=>{
+      const el=document.createElement('div');
+      el.className='zone '+cls;
+      el.title=title||label;
+
+      const pile=document.createElement('div');
+      pile.className='zone-pile';
+
+      if(img){
+        const im=document.createElement('img');
+        im.src=img;
+        im.alt=title||label;
+        im.draggable=false;
+        pile.appendChild(im);
+      }else{
+        const empty=document.createElement('div');
+        empty.className='zone-empty';
+        empty.textContent=count?'Loading…':'Empty';
+        pile.appendChild(empty);
+      }
+
+      const n=document.createElement('div');
+      n.className='zone-count';
+      n.textContent=String(count);
+
+      const l=document.createElement('div');
+      l.className='zone-label';
+      l.textContent=label;
+
+      el.append(pile,n,l);
+      root.appendChild(el);
+    };
+
+    // Commander lives ONLY here — never in the 99-card library.
+    const commander = player===1 && state.commanderInZone ? state.commander : null;
+    makeCardZone(
+      'COMMAND',
+      'command',
+      commander,
+      commander ? commander.name : 'Command Zone'
+    );
+
+    makeZone(
+      'LIBRARY',
+      'library',
+      player===1 ? state.cards.length : 0,
+      player===1 ? BACK : '',
+      'Library'
+    );
+
+    makeCardZone(
+      'GRAVEYARD',
+      'graveyard',
+      z.graveyard.length ? z.graveyard[z.graveyard.length-1] : null,
+      'Graveyard'
+    );
+
+    makeCardZone(
+      'EXILE',
+      'exile',
+      z.exile.length ? z.exile[z.exile.length-1] : null,
+      'Exile'
+    );
+  }
+}
+
+function render(){
+  const hand=document.querySelector('#hand');
+
+  // Commander is separate from the 99-card library.
+  // The seven cards shown here were randomly drawn when the deck was imported.
+  // They are NOT state.cards.slice(0,7), so every fresh import gets a new hand.
+  // Commander is rendered in the command zone, never in the hand/library.
+  const opening=[];
+  state.handCards.forEach((c,i)=>opening.push({card:c,isCommander:false,index:i}));
+
+  // Build the hand as real DOM nodes so every card goes through the same
+  // image resolver/recovery path as a battlefield card. The old v79 version
+  // rendered missing cards as permanent "Loading…" HTML and never called
+  // putCardImage() for them until a drag started.
+  hand.replaceChildren();
+  opening.forEach((item,i)=>{
+    const c=item.card;
+    const idx=item.isCommander ? -1 : item.index;
+    const el=document.createElement('div');
+    el.className='hand-card';
+    el.dataset.index=String(idx);
+    el.dataset.commander=item.isCommander?'1':'0';
+    el.title=c.name||'';
+    el._cardData=c;
+    hand.appendChild(el);
+    putCardImage(el,c);
+  });
+
+  document.querySelector('#deckInfo').textContent=
+    state.deckTitle
+      ? `${state.deckTitle} • ${state.cards.length} cards + commander`
+      : 'No deck imported.';
+  document.querySelector('#p1name').textContent=
+    state.commander?.name
+      ? `Player 1 • ${state.commander.name}`
+      : 'Player 1';
+
+  renderZones();
+}
+render();
+
+/* ---------- ONLY interaction: free hover + free drag ---------- */
+let drag=null;
+let hoverCard=null;
+
+function clearHover(){
+  document.querySelectorAll('.hand-card.hover-main,.hand-card.hover-neighbor').forEach(x=>{
+    x.classList.remove('hover-main','hover-neighbor');
+  });
+}
+
+let previewToken=0;
+function hideCardPreview(){
+  previewToken++;
+  const preview=document.querySelector('#cardHoverPreview');
+  if(!preview)return;
+  preview.classList.remove('open');
+  preview.replaceChildren();
+}
+
+function showCardPreview(cardEl){
+  const c=cardEl?._cardData;
+  if(!c)return;
+  const preview=document.querySelector('#cardHoverPreview');
+  if(!preview)return;
+  const token=++previewToken;
+  preview.replaceChildren();
+
+  const url=imageForCard(c);
+  if(url){
+    const im=document.createElement('img');
+    im.src=url;
+    im.alt=c.name||'';
+    im.draggable=false;
+    im.addEventListener('error',async()=>{
+      const full=await fetchNamedFullCard(c.name);
+      if(token!==previewToken)return;
+      if(full){
+        Object.assign(c,full);
+        showCardPreview(cardEl);
+      }else{
+        const fallback=document.createElement('div');
+        fallback.className='preview-fallback';
+        fallback.textContent=c.name||'Card';
+        preview.replaceChildren(fallback);
+      }
+    },{once:true});
+    preview.appendChild(im);
+  }else{
+    const fallback=document.createElement('div');
+    fallback.className='preview-fallback';
+    fallback.textContent='Loading '+(c.name||'Card')+'…';
+    preview.appendChild(fallback);
+    fetchNamedFullCard(c.name).then(full=>{
+      if(token!==previewToken)return;
+      if(full){Object.assign(c,full);showCardPreview(cardEl)}
+      else{fallback.textContent=c.name||'Card'}
+    });
+  }
+  preview.classList.add('open');
+}
+
+function hoverTargetFromEvent(e){
+  return e.target.closest?.('.hand-card,.table-card,.mulligan-card,.zone');
+}
+
+document.addEventListener('mouseover',e=>{
+  const card=hoverTargetFromEvent(e);
+  if(!card)return;
+
+  // Keep the existing hand hover behavior.
+  if(card.classList.contains('hand-card')){
+    const hand=card.closest('.hand');
+    if(hand){
+      const cards=[...hand.querySelectorAll('.hand-card')];
+      const i=cards.indexOf(card);
+      if(i>=0){
+        clearHover();
+        card.classList.add('hover-main');
+        if(cards[i-1])cards[i-1].classList.add('hover-neighbor');
+        if(cards[i+1])cards[i+1].classList.add('hover-neighbor');
+      }
+    }
+  }
+
+  showCardPreview(card);
+});
+
+document.addEventListener('mouseout',e=>{
+  const card=hoverTargetFromEvent(e);
+  if(!card)return;
+  const next=hoverTargetFromEvent({target:e.relatedTarget});
+  if(next===card)return;
+  clearHover();
+  hideCardPreview();
+});
+
+function hasTwoFaces(c){return Array.isArray(c?.faces)&&c.faces.length>1&&!!c.faces[1];}
+function faceData(c){
+  if(!c)return null;
+  const faces=Array.isArray(c.faces)?c.faces:[];
+  if(!faces.length)return c;
+  return faces[(c._faceIndex===1&&faces[1])?1:0]||faces[0];
+}
+function imageForCard(c){
+  if(!c)return '';
+  const face=faceData(c)||{};
+  const u=face.image_uris||{};
+  return (u.normal||u.large||u.small||'') || c.img || '';
+}
+const imageRecoveryCache=new Map();
+async function fetchNamedFullCard(name){
+  const clean=String(name||'').trim();
+  if(!clean)return null;
+  const urls=[
+    'https://api.scryfall.com/cards/named?exact='+encodeURIComponent(clean),
+    'https://api.scryfall.com/cards/named?fuzzy='+encodeURIComponent(clean)
+  ];
+  for(const url of urls){
+    try{
+      const controller=new AbortController();
+      const timer=setTimeout(()=>controller.abort(),7000);
+      try{
+        const r=await fetch(url,{signal:controller.signal,cache:'no-store'});
+        if(!r.ok)continue;
+        const full=normalizedCard(await r.json());
+        if(full&&(full.img||full.faces?.some(f=>f?.image_uris)))return full;
+      }finally{clearTimeout(timer)}
+    }catch{}
+  }
+  return null;
+}
+function addFlipControl(el,c){
+  if(!el||!c||!hasTwoFaces(c))return;
+  const old=el.querySelector('.flip-card-btn'); if(old)old.remove();
+  const b=document.createElement('button');
+  b.type='button';b.className='flip-card-btn';b.textContent='↔';b.title='Flip card';b.setAttribute('aria-label','Flip card');
+  b.addEventListener('mousedown',e=>{e.preventDefault();e.stopPropagation()});
+  b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();c._faceIndex=c._faceIndex===1?0:1;putCardImage(el,c)});
+  el.appendChild(b);
+}
+function putCardImage(el,c){
+  if(!el||!c)return;
+  el._cardData=c;
+  const url=imageForCard(c);
+  const showFallback=()=>{if(!el.isConnected)return;el.innerHTML=`<div class="missing-card-image" title="${esc(c.name)}">${esc(c.name||'Card')}</div>`;addFlipControl(el,c)};
+  const recover=()=>{
+    const key=String(c?.name||'').trim().toLowerCase();if(!key)return Promise.resolve(null);
+    let job=imageRecoveryCache.get(key);
+    if(!job){job=fetchNamedFullCard(c.name).then(full=>{if(full)Object.assign(c,full);return full}).catch(()=>null);imageRecoveryCache.set(key,job)}
+    return job;
+  };
+  if(url){
+    const im=document.createElement('img');im.src=url;im.alt=c.name||'';im.title=c.name||'';im.draggable=false;
+    im.addEventListener('error',async()=>{const full=await recover();if(full)putCardImage(el,c);else showFallback()},{once:true});
+    el.replaceChildren(im);addFlipControl(el,c);return;
+  }
+  el.innerHTML=`<div class="missing-card-image" title="Loading ${esc(c.name)}">Loading…</div>`;addFlipControl(el,c);
+  recover().then(full=>{if(!el.isConnected)return;if(full)putCardImage(el,c);else showFallback()});
+}
+
+function makeTableCard(c,x,y,field){
+  const el=document.createElement('div');
+  el.className='table-card';
+  el.style.left=(x-85)+'px';
+  el.style.top=(y-120.5)+'px';
+  putCardImage(el,c);
+  el._cardData=c;
+  field.appendChild(el);
+  attachDrag(el,field);
+  return el;
+}
+
+function attachDrag(el,field){
+  el.addEventListener('mousedown',e=>{
+    if(e.button!==0 || drag)return;
+    const er=el.getBoundingClientRect();
+    drag={
+      kind:'table',
+      el,
+      field,
+      offsetX:e.clientX-er.left,
+      offsetY:e.clientY-er.top
+    };
+    el.classList.add('dragging');
+    e.preventDefault();
+    e.stopPropagation();
+  });
+}
+
+function attachCommandDrag(zoneEl,card,field){
+  if(!zoneEl||!card||!field)return;
+  zoneEl.dataset.commandDraggable='1';
+  zoneEl.style.cursor='grab';
+  zoneEl.addEventListener('mousedown',e=>{
+    if(e.button!==0 || drag)return;
+    const er=zoneEl.getBoundingClientRect();
+    drag={
+      kind:'command',
+      el:null,
+      source:zoneEl,
+      card,
+      field,
+      offsetX:e.clientX-er.left,
+      offsetY:e.clientY-er.top
+    };
+    zoneEl.classList.add('dragging-zone');
+    e.preventDefault();
+    e.stopPropagation();
+  });
+}
+
+/* One — and only one — global mousemove handler. */
+document.addEventListener('mousemove',e=>{
+  if(!drag)return;
+
+  const r=drag.field.getBoundingClientRect();
+  let x=e.clientX-r.left-drag.offsetX;
+  let y=e.clientY-r.top-drag.offsetY;
+
+  if(drag.kind==='hand' || drag.kind==='command'){
+    if(!drag.el){
+      const el=document.createElement('div');
+      el.className='table-card dragging';
+      putCardImage(el,drag.card);
+      el._cardData=drag.card;
+      drag.field.appendChild(el);
+      drag.el=el;
+    }
+  }
+
+  if(drag.el){
+    drag.el.style.left=x+'px';
+    drag.el.style.top=y+'px';
+  }
+
+  e.preventDefault();
+});
+
+/* One — and only one — global mouseup handler. */
+document.addEventListener('mouseup',e=>{
+  if(!drag)return;
+
+  const current=drag;
+  drag=null;
+
+  if(current.kind==='hand' || current.kind==='command'){
+    current.source.classList.remove('dragging');
+    current.source.classList.remove('dragging-zone');
+
+    if(current.el){
+      current.el.classList.remove('dragging');
+      if(current.kind==='hand'){
+        // Remove the exact physical card from the hand. Object identity is
+        // used so no stale hand index can make another card become dead.
+        const handIndex=state.handCards.indexOf(current.card);
+        if(handIndex>=0)state.handCards.splice(handIndex,1);
+        current.source.remove();
+      }else if(current.kind==='command'){
+        // A commander is a real movable card. Once it is dragged out of the
+        // command zone, the command zone is empty until the card is explicitly
+        // returned there by future zone logic.
+        state.commanderInZone=false;
+        renderZones();
+      }
+      attachDrag(current.el,current.field);
+    }
+    return;
+  }
+
+  if(current.el){
+    current.el.classList.remove('dragging');
+  }
+});
+
+// If the mouse leaves the browser/window while dragging, mouseup may not
+// arrive on the document. Always restore the source card instead of leaving
+// it permanently invisible/unresponsive.
+function cancelDrag(){
+  if(!drag)return;
+  const current=drag;
+  drag=null;
+  if(current.el){current.el.remove();}
+  if(current.source){
+    current.source.classList.remove('dragging','dragging-zone');
+    current.source.style.opacity='';
+  }
+}
+window.addEventListener('blur',cancelDrag);
+document.addEventListener('mouseleave',e=>{ if(e.relatedTarget==null) cancelDrag(); });
+
+/* Hand -> Player 1's battlefield. */
+document.querySelector('#hand').addEventListener('mousedown',e=>{
+  const card=e.target.closest?.('.hand-card');
+  if(!card||e.button!==0||drag)return;
+
+  const isCommander=card.dataset.commander==='1';
+  // Never recover the card from a stale numeric index. Cards are removed from
+  // the hand as they are played, so every later index can shift. The DOM node
+  // owns the exact physical card object instead.
+  const c=card._cardData;
+  if(!c)return;
+
+  const field=document.querySelector('#field1');
+  if(!field)return;
+
+  // IMPORTANT: remember the actual object, not its original array index.
+  // Removing a card from the hand shifts every later index.
+  // We use object identity on mouseup, so every remaining card stays draggable.
+  const er=card.getBoundingClientRect();
+
+  drag={
+    kind:'hand',
+    el:null,
+    source:card,
+    card:c,
+    field,
+    offsetX:e.clientX-er.left,
+    offsetY:e.clientY-er.top
+  };
+
+  card.classList.add('dragging');
+  e.preventDefault();
+  e.stopPropagation();
+});
+
+/* Double-click is deliberately not special. No MTG rules exist in this sandbox. */
+document.querySelector('#moxBtn').onclick=importMox;
+document.querySelector('#textBtn').onclick=importText;
+document.querySelector('#clearBtn').onclick=()=>{
+  state.cards=[];state.commander=null;state.commanderInZone=false;state.handCards=[];state.deckTitle='';
+  state.zones={1:{graveyard:[],exile:[]},2:{graveyard:[],exile:[]},3:{graveyard:[],exile:[]},4:{graveyard:[],exile:[]}};
+  state.mulliganOpen=false;state.mulliganCount=0;state.bottomCount=0;state.bottomSelected=new Set();
+  document.querySelector('#mulliganOverlay').classList.remove('open');
+  document.querySelectorAll('.player-field .table-card').forEach(x=>x.remove());
+  render();
+  document.querySelector('#toolbar').classList.remove('hidden');
+  document.querySelector('#deckBtn').classList.add('hidden');
+  setStatus('Table cleared.');
+};
+document.querySelector('#deckBtn').onclick=()=>{
+  document.querySelector('#toolbar').classList.remove('hidden');
+  document.querySelector('#deckBtn').classList.add('hidden');
+};
+</script>
+</body>
+</html>
